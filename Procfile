@@ -1,1 +1,1 @@
-web: serve -s dist -l 3000
+web: serve -s dist -l $PORT
