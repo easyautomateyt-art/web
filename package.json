@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "ROLLUP_SKIP_NODEJS_NATIVE=true vite build",
+    "build": "node -e \"process.env.ROLLUP_SKIP_NODEJS_NATIVE='true'; require('child_process').spawn(process.platform==='win32'? 'cmd':'sh', [process.platform==='win32'?'/c':'-c', 'npm run _vitebuild'], {stdio:'inherit'});\"",
+    "_vitebuild": "vite build",
     "start": "node server.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
