@@ -193,8 +193,42 @@ async function startServer() {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 
-  app.listen(port, () => {
-    console.log(`Server listening on ${port}`);
+  // Debug endpoint to check dist presence remotely
+  app.get('/debug/dist', (req, res) => {
+    try {
+      const exists = fs.existsSync(distPath);
+      const list = exists ? fs.readdirSync(distPath).slice(0, 200) : [];
+      return res.json({ ok: true, distExists: exists, entries: list });
+    } catch (e) {
+      console.error('Error in /debug/dist:', e && e.message ? e.message : e);
+      return res.status(500).json({ ok: false, error: 'diagnostic_error' });
+    }
+  });
+
+  const host = process.env.HOST || '0.0.0.0';
+  const server = app.listen(port, host, () => {
+    console.log(`Server listening on ${host}:${port}`);
+  });
+
+  // Graceful logging on termination and error handling
+  process.on('SIGTERM', () => {
+    console.warn('Received SIGTERM, shutting down gracefully...');
+    try { server.close(() => console.log('HTTP server closed')); } catch (e) { console.error(e); }
+    process.exit(0);
+  });
+
+  process.on('SIGINT', () => {
+    console.warn('Received SIGINT, shutting down...');
+    try { server.close(() => console.log('HTTP server closed')); } catch (e) { console.error(e); }
+    process.exit(0);
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception:', err && err.stack ? err.stack : err);
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled rejection:', reason);
   });
 }
 
