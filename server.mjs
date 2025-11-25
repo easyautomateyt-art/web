@@ -193,6 +193,11 @@ async function startServer() {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 
+  // Health check endpoint
+  app.get('/healthz', (req, res) => {
+    res.status(200).send('OK');
+  });
+
   // Debug endpoint to check dist presence remotely
   app.get('/debug/dist', (req, res) => {
     try {
