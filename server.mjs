@@ -208,6 +208,14 @@ async function startServer() {
   const host = process.env.HOST || '0.0.0.0';
   const server = app.listen(port, host, () => {
     console.log(`Server listening on ${host}:${port}`);
+    try {
+      console.log('Process info: pid=', process.pid, 'ppid=', process.ppid);
+      console.log('Env snapshot: PORT=', process.env.PORT, 'HOST=', process.env.HOST, 'NODE_ENV=', process.env.NODE_ENV);
+      const mem = process.memoryUsage();
+      console.log('Memory usage (rss/heapUsed/heapTotal):', mem.rss, mem.heapUsed, mem.heapTotal);
+    } catch (e) {
+      console.error('Error logging process info:', e && e.message ? e.message : e);
+    }
   });
 
   // Graceful logging on termination and error handling
