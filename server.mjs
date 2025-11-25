@@ -48,91 +48,9 @@ async function startServer() {
     res.status(200).send('OK');
   });
 
-  // Debug endpoint to check dist presence remotely
-  app.get('/debug/dist', (req, res) => {
-    try {
-      const exists = fs.existsSync(distPath);
-      // Simple recursive list for debug endpoint
-      const getFiles = (dir) => {
-        let results = [];
-        const list = fs.readdirSync(dir);
-        list.forEach((file) => {
-          file = path.join(dir, file);
-          const stat = fs.statSync(file);
-          if (stat && stat.isDirectory()) {
-            results = results.concat(getFiles(file));
-          } else {
-            results.push(file);
-          }
-        });
-        return results;
-      };
-      const files = exists ? getFiles(distPath).map(f => path.relative(distPath, f)) : [];
-      return res.json({ ok: true, distExists: exists, files });
-    } catch (e) {
-      console.error('Error in /debug/dist:', e && e.message ? e.message : e);
-      return res.status(500).json({ ok: false, error: 'diagnostic_error' });
-    }
-  });
-
   // parse JSON bodies for API endpoints
   app.use(express.json({ limit: '256kb' }));
   const distPath = path.join(__dirname, 'dist');
-
-  // Diagnostics: report dist status and listing to help debugging in production
-  try {
-    console.log('Diagnostics: __dirname =', __dirname);
-    console.log('Diagnostics: distPath =', distPath);
-    const distExists = fs.existsSync(distPath);
-    console.log('Diagnostics: dist exists =', distExists);
-    if (distExists) {
-      try {
-        // Recursive listing for startup logs
-        const getFiles = (dir) => {
-          let results = [];
-          const list = fs.readdirSync(dir);
-          list.forEach((file) => {
-            file = path.join(dir, file);
-            const stat = fs.statSync(file);
-            if (stat && stat.isDirectory()) {
-              results = results.concat(getFiles(file));
-            } else {
-              results.push(path.relative(distPath, file));
-            }
-          });
-          return results;
-        };
-        const allFiles = getFiles(distPath);
-        console.log('Diagnostics: dist files (recursive):', allFiles.join(', '));
-
-        // Check index.html content
-        const indexPath = path.join(distPath, 'index.html');
-        if (fs.existsSync(indexPath)) {
-          const content = fs.readFileSync(indexPath, 'utf8');
-          // Extract script src to verify build output
-          const scriptMatch = content.match(/<script[^>]+src="([^"]+)"/);
-          console.log('Diagnostics: index.html script src:', scriptMatch ? scriptMatch[1] : 'NOT FOUND');
-        }
-      } catch (e) {
-        console.error('Diagnostics: listing dist failed:', e && e.message ? e.message : e);
-      }
-    }
-  } catch (dErr) {
-    console.error('Diagnostics error:', dErr && dErr.message ? dErr.message : dErr);
-  }
-
-  // Middleware to log requests and whether requested asset exists in dist
-  app.use((req, res, next) => {
-    try {
-      const urlPath = req.path || req.url || '/';
-      const fileCandidate = path.join(distPath, urlPath.replace(/^\//, ''));
-      const exists = fs.existsSync(fileCandidate);
-      console.log(`REQ ${req.method} ${urlPath} -> fileExists=${exists} candidate=${fileCandidate}`);
-    } catch (e) {
-      console.error('Request diagnostics error:', e && e.message ? e.message : e);
-    }
-    next();
-  });
 
   // Rate limiter for contact submissions (configurable via env)
   const contactLimiter = rateLimit({
