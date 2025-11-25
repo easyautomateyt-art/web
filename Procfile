@@ -1,1 +1,1 @@
-web: node server.mjs
+web: npx pm2-runtime server.mjs
