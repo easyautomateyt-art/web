@@ -43,6 +43,37 @@ async function startServer() {
   app.use(express.json({ limit: '256kb' }));
   const distPath = path.join(__dirname, 'dist');
 
+  // Diagnostics: report dist status and listing to help debugging in production
+  try {
+    console.log('Diagnostics: __dirname =', __dirname);
+    console.log('Diagnostics: distPath =', distPath);
+    const distExists = fs.existsSync(distPath);
+    console.log('Diagnostics: dist exists =', distExists);
+    if (distExists) {
+      try {
+        const list = fs.readdirSync(distPath).slice(0, 200);
+        console.log('Diagnostics: dist entries (first 200):', list.join(', '));
+      } catch (e) {
+        console.error('Diagnostics: listing dist failed:', e && e.message ? e.message : e);
+      }
+    }
+  } catch (dErr) {
+    console.error('Diagnostics error:', dErr && dErr.message ? dErr.message : dErr);
+  }
+
+  // Middleware to log requests and whether requested asset exists in dist
+  app.use((req, res, next) => {
+    try {
+      const urlPath = req.path || req.url || '/';
+      const fileCandidate = path.join(distPath, urlPath.replace(/^\//, ''));
+      const exists = fs.existsSync(fileCandidate);
+      console.log(`REQ ${req.method} ${urlPath} -> fileExists=${exists} candidate=${fileCandidate}`);
+    } catch (e) {
+      console.error('Request diagnostics error:', e && e.message ? e.message : e);
+    }
+    next();
+  });
+
   // Rate limiter for contact submissions (configurable via env)
   const contactLimiter = rateLimit({
     windowMs: process.env.CONTACT_RATE_WINDOW_MS ? Number(process.env.CONTACT_RATE_WINDOW_MS) : 60 * 60 * 1000, // 1 hour
