@@ -40,6 +40,9 @@ async function startServer() {
 
   const app = express();
 
+  // Trust the first proxy (Easypanel/Docker load balancer) to fix rate limiter IP detection
+  app.set('trust proxy', 1);
+
   // Health check endpoint - defined first to avoid being blocked by other routes
   app.get('/healthz', (req, res) => {
     res.status(200).send('OK');
