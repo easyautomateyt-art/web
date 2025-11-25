@@ -106,7 +106,9 @@ async function startServer() {
         const indexPath = path.join(distPath, 'index.html');
         if (fs.existsSync(indexPath)) {
           const content = fs.readFileSync(indexPath, 'utf8');
-          console.log('Diagnostics: index.html content (first 500 chars):', content.substring(0, 500));
+          // Extract script src to verify build output
+          const scriptMatch = content.match(/<script[^>]+src="([^"]+)"/);
+          console.log('Diagnostics: index.html script src:', scriptMatch ? scriptMatch[1] : 'NOT FOUND');
         }
       } catch (e) {
         console.error('Diagnostics: listing dist failed:', e && e.message ? e.message : e);
@@ -242,9 +244,21 @@ async function startServer() {
     }
   });
 
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        // Never cache index.html to ensure users get the latest asset links
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      } else if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+        // Cache static assets heavily as they are hashed
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  }));
 
   app.get('*', (req, res) => {
+    // Also prevent caching for the fallback index.html
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.sendFile(path.join(distPath, 'index.html'));
   });
 
