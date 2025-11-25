@@ -45,6 +45,23 @@ Invoke-RestMethod -Method Post -Uri http://localhost:80/api/contact -Body $body 
 - Check if your environment is blocking outbound SMTP ports (some ISPs block 25/465/587).
 - If using port 465, ensure `SMTP_SECURE=true`; for 587 use `SMTP_SECURE=false` and STARTTLS.
 
+9) Using Mailtrap for safe testing (optional)
+- Why Mailtrap: Mailtrap is a testing SMTP inbox that captures email without delivering to real recipients. It avoids sending test messages to real user inboxes while you debug and iterate.
+- When to use it: during development or CI tests. If your current SMTP (Hostinger) already works and you are comfortable sending test mails to the real admin inbox, Mailtrap is optional. It's recommended when multiple developers test or automated tests run to avoid accidental real emails.
+- How to use Mailtrap: create an account at https://mailtrap.io, get SMTP credentials, and temporarily replace your `.env` values with Mailtrap's credentials. Example `.env` changes:
+
+```
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_SECURE=false
+SMTP_USER=your_mailtrap_user
+SMTP_PASS=your_mailtrap_pass
+FROM_EMAIL=no-reply@example.com
+TO_EMAIL=your@inbox.mailtrap.io
+```
+
+After testing, revert to your Hostinger credentials.
+
 8) Review logs
 - Server prints useful diagnostics when import or sending fails. If you see `nodemailer import failed`, ensure `npm install` installed `nodemailer`.
 - If you see `Contact email sent:` then the provider accepted the message. Track deliverability in your SMTP provider dashboard.

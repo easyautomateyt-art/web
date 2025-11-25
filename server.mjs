@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 // Load local .env in development (no effect if env vars provided by host)
 import 'dotenv/config';
+import rateLimit from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,17 +43,43 @@ async function startServer() {
   app.use(express.json({ limit: '256kb' }));
   const distPath = path.join(__dirname, 'dist');
 
+  // Rate limiter for contact submissions (configurable via env)
+  const contactLimiter = rateLimit({
+    windowMs: process.env.CONTACT_RATE_WINDOW_MS ? Number(process.env.CONTACT_RATE_WINDOW_MS) : 60 * 60 * 1000, // 1 hour
+    max: process.env.CONTACT_RATE_MAX ? Number(process.env.CONTACT_RATE_MAX) : 5, // limit each IP to 5 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { ok: false, error: 'rate_limited' },
+  });
+
+  // Simple server-side validation helper
+  const isValidEmail = (email) => {
+    if (!email || typeof email !== 'string') return false;
+    // simple RFC-like regexp (not perfect but enough for basic validation)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   // Simple contact API endpoint — sends email using SMTP configured via env
-  app.post('/api/contact', async (req, res) => {
+  app.post('/api/contact', contactLimiter, async (req, res) => {
     try {
       const { name, email, message, accept } = req.body || {};
       console.log('/api/contact received:', { name, email: email ? '[REDACTED]' : undefined, accept });
 
+      // Basic validations
       if (!accept) {
         return res.status(400).json({ ok: false, error: 'privacy_required' });
       }
       if (!email || !message) {
         return res.status(400).json({ ok: false, error: 'missing_fields' });
+      }
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ ok: false, error: 'invalid_email' });
+      }
+      if (typeof name === 'string' && name.length > 200) {
+        return res.status(400).json({ ok: false, error: 'name_too_long' });
+      }
+      if (typeof message !== 'string' || message.length < 3 || message.length > 5000) {
+        return res.status(400).json({ ok: false, error: 'invalid_message_length' });
       }
 
       // lazy-load nodemailer so startup still fails earlier if dependency missing
