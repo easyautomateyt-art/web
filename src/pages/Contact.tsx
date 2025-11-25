@@ -25,14 +25,30 @@ export default function Contact() {
     setAcceptError('');
     setStatus('sending');
 
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, accept: acceptedPrivacy }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error('Contact send failed', data);
+        setStatus('error');
+        return;
+      }
+
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
 
       setTimeout(() => {
         setStatus('idle');
       }, 5000);
-    }, 1500);
+    } catch (err) {
+      console.error('Contact send error', err);
+      setStatus('error');
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
