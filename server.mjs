@@ -39,6 +39,39 @@ async function startServer() {
   }
 
   const app = express();
+
+  // Health check endpoint - defined first to avoid being blocked by other routes
+  app.get('/healthz', (req, res) => {
+    res.status(200).send('OK');
+  });
+
+  // Debug endpoint to check dist presence remotely
+  app.get('/debug/dist', (req, res) => {
+    try {
+      const exists = fs.existsSync(distPath);
+      // Simple recursive list for debug endpoint
+      const getFiles = (dir) => {
+        let results = [];
+        const list = fs.readdirSync(dir);
+        list.forEach((file) => {
+          file = path.join(dir, file);
+          const stat = fs.statSync(file);
+          if (stat && stat.isDirectory()) {
+            results = results.concat(getFiles(file));
+          } else {
+            results.push(file);
+          }
+        });
+        return results;
+      };
+      const files = exists ? getFiles(distPath).map(f => path.relative(distPath, f)) : [];
+      return res.json({ ok: true, distExists: exists, files });
+    } catch (e) {
+      console.error('Error in /debug/dist:', e && e.message ? e.message : e);
+      return res.status(500).json({ ok: false, error: 'diagnostic_error' });
+    }
+  });
+
   // parse JSON bodies for API endpoints
   app.use(express.json({ limit: '256kb' }));
   const distPath = path.join(__dirname, 'dist');
@@ -51,8 +84,30 @@ async function startServer() {
     console.log('Diagnostics: dist exists =', distExists);
     if (distExists) {
       try {
-        const list = fs.readdirSync(distPath).slice(0, 200);
-        console.log('Diagnostics: dist entries (first 200):', list.join(', '));
+        // Recursive listing for startup logs
+        const getFiles = (dir) => {
+          let results = [];
+          const list = fs.readdirSync(dir);
+          list.forEach((file) => {
+            file = path.join(dir, file);
+            const stat = fs.statSync(file);
+            if (stat && stat.isDirectory()) {
+              results = results.concat(getFiles(file));
+            } else {
+              results.push(path.relative(distPath, file));
+            }
+          });
+          return results;
+        };
+        const allFiles = getFiles(distPath);
+        console.log('Diagnostics: dist files (recursive):', allFiles.join(', '));
+
+        // Check index.html content
+        const indexPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          const content = fs.readFileSync(indexPath, 'utf8');
+          console.log('Diagnostics: index.html content (first 500 chars):', content.substring(0, 500));
+        }
       } catch (e) {
         console.error('Diagnostics: listing dist failed:', e && e.message ? e.message : e);
       }
@@ -191,23 +246,6 @@ async function startServer() {
 
   app.get('*', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
-  });
-
-  // Health check endpoint
-  app.get('/healthz', (req, res) => {
-    res.status(200).send('OK');
-  });
-
-  // Debug endpoint to check dist presence remotely
-  app.get('/debug/dist', (req, res) => {
-    try {
-      const exists = fs.existsSync(distPath);
-      const list = exists ? fs.readdirSync(distPath).slice(0, 200) : [];
-      return res.json({ ok: true, distExists: exists, entries: list });
-    } catch (e) {
-      console.error('Error in /debug/dist:', e && e.message ? e.message : e);
-      return res.status(500).json({ ok: false, error: 'diagnostic_error' });
-    }
   });
 
   const host = process.env.HOST || '0.0.0.0';
