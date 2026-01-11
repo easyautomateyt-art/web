@@ -8,9 +8,12 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types"],
 
     /* Linting */
     "strict": true,
@@ -18,5 +21,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "eslint.config.js",
+    "postcss.config.js",
+    "tailwind.config.js"
+  ]
 }

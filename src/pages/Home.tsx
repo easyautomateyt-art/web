@@ -1,4 +1,4 @@
-import { Calendar, Package, FileText, Database, CheckCircle, Cloud, HeadphonesIcon, RefreshCw } from 'lucide-react';
+import { Calendar, Package, FileText, Database, CheckCircle, Cloud, HeadphonesIcon, RefreshCw, Clock, CreditCard } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 
@@ -27,6 +27,16 @@ export default function Home() {
       icon: Database,
       title: t.home.features.stock.title,
       description: t.home.features.stock.description,
+    },
+    {
+      icon: Clock,
+      title: t.home.features.timeControl.title,
+      description: t.home.features.timeControl.description,
+    },
+    {
+      icon: CreditCard,
+      title: t.home.features.accounting.title,
+      description: t.home.features.accounting.description,
     },
   ];
 
@@ -87,7 +97,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (

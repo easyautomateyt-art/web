@@ -1,4 +1,4 @@
-import { Calendar, Package, FileText, Database, CheckCircle } from 'lucide-react';
+import { Calendar, Package, FileText, Database, CheckCircle, Clock, CreditCard } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 
@@ -64,9 +64,40 @@ export default function Services() {
         t.services.stock.features.multi,
         t.services.stock.features.valuation,
         t.services.stock.features.reports,
+        t.services.stock.features.providers,
       ],
       benefit: t.services.stock.benefit,
       color: 'from-orange-500 to-red-600',
+    },
+    {
+      icon: Clock,
+      title: t.services.timeControl.title,
+      description: t.services.timeControl.description,
+      features: [
+        t.services.timeControl.features.centralized,
+        t.services.timeControl.features.employees,
+        t.services.timeControl.features.control,
+        t.services.timeControl.features.legal,
+        t.services.timeControl.features.history,
+        t.services.timeControl.features.shifts,
+      ],
+      benefit: t.services.timeControl.benefit,
+      color: 'from-cyan-500 to-teal-600',
+    },
+    {
+      icon: CreditCard,
+      title: t.services.accounting.title,
+      description: t.services.accounting.description,
+      features: [
+        t.services.accounting.features.automaticEntries,
+        t.services.accounting.features.salesPurchases,
+        t.services.accounting.features.payroll,
+        t.services.accounting.features.assets,
+        t.services.accounting.features.realtime,
+        t.services.accounting.features.errors,
+      ],
+      benefit: t.services.accounting.benefit,
+      color: 'from-purple-500 to-pink-600',
     },
   ];
 
