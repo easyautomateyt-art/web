@@ -1,10 +1,11 @@
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isServicesMobileOpen, setIsServicesMobileOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
 
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -48,6 +49,7 @@ export default function Header() {
 
   const handleCloseMenu = () => {
     setIsMenuOpen(false);
+    setIsServicesMobileOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -59,6 +61,14 @@ export default function Header() {
     { id: 'contact', label: t.nav.contact, to: `${base}/${language === 'es' ? 'contacto' : 'contacte'}` },
   ];
 
+  const industryLinks = [
+    { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants' },
+    { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', pathEs: 'peluquerias', pathCa: 'perruqueries' },
+    { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', pathEs: 'estetica', pathCa: 'estetica' },
+    { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', pathEs: 'carnicerias', pathCa: 'carnisseries' },
+    { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', pathEs: 'panaderias', pathCa: 'forns' },
+  ];
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -68,22 +78,54 @@ export default function Header() {
     setIsLangOpen(false);
     // compute target path mapping
     const current = location.pathname.replace(/^\/(es|ca)/, '') || '/';
-    const mapping: Record<string, Record<'es'|'ca', string>> = {
+    
+    // Build dynamic mapping including generic pages and all industry pages
+    const baseMapping: Record<string, Record<'es'|'ca', string>> = {
       '/': { es: '/es', ca: '/ca' },
-      '/services': { es: '/es/servicios', ca: '/ca/serveis' },
+      '/services': { es: '/es/servicios', ca: '/ca/serveis' }, // For english-like fallback
+      '/servicios': { es: '/es/servicios', ca: '/ca/serveis' },
+      '/serveis': { es: '/es/servicios', ca: '/ca/serveis' },
+      
       '/about': { es: '/es/sobre', ca: '/ca/sobre' },
+      '/sobre': { es: '/es/sobre', ca: '/ca/sobre' },
+
       '/contact': { es: '/es/contacto', ca: '/ca/contacte' },
+      '/contacto': { es: '/es/contacto', ca: '/ca/contacte' },
+      '/contacte': { es: '/es/contacto', ca: '/ca/contacte' },
+
       '/aviso-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
+      '/avis-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
+
       '/politica-privacidad': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
+      '/politica-privacitat': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
     };
+
+    // Add industry paths to mapping
+    industryLinks.forEach(ind => {
+      // From ES path
+      const esKey = `/servicios/${ind.pathEs}`;
+      baseMapping[esKey] = { 
+        es: `/es/servicios/${ind.pathEs}`, 
+        ca: `/ca/serveis/${ind.pathCa}` 
+      };
+      
+      // From CA path
+      const caKey = `/serveis/${ind.pathCa}`;
+      baseMapping[caKey] = { 
+        es: `/es/servicios/${ind.pathEs}`, 
+        ca: `/ca/serveis/${ind.pathCa}` 
+      };
+    });
+
     // try to find a direct match or fallback to root of language
+    // normalized should just be the path without language prefix
     const normalized = current === '/' ? '/' : `/${current.replace(/^\//, '')}`;
-    const target = mapping[normalized]?.[lang] ?? (lang === 'es' ? '/es' : '/ca');
+    const target = baseMapping[normalized]?.[lang] ?? (lang === 'es' ? '/es' : '/ca');
     navigate(target);
   };
 
   return (
-    <header className="fixed w-full top-0 z-50 bg-[#001F20] shadow-lg">
+    <header className="fixed w-full top-0 z-[100] bg-[#001F20] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center">
@@ -95,16 +137,50 @@ export default function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.to}
-                onClick={handleCloseMenu}
-                className={({ isActive }) => `text-base font-medium transition-colors ${isActive ? 'text-[#00E8E5]' : 'text-white hover:text-[#00E8E5]'}`}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {navItems.map((item) => {
+              if (item.id === 'services') {
+                return (
+                  <div key={item.id} className="relative group">
+                    <div className="flex items-center cursor-pointer">
+                      <NavLink
+                        to={item.to}
+                        onClick={handleCloseMenu}
+                        className={({ isActive }) => `text-base font-medium transition-colors flex items-center ${isActive || location.pathname.includes(language === 'es' ? '/servicios/' : '/serveis/') ? 'text-[#00E8E5]' : 'text-white hover:text-[#00E8E5]'}`}
+                      >
+                        {item.label}
+                      </NavLink>
+                      <ChevronDown className="ml-1 h-4 w-4 text-white group-hover:text-[#00E8E5] transition-colors" />
+                    </div>
+                    {/* Dropdown Content */}
+                    <div className="absolute left-0 top-full pt-2 w-64 hidden group-hover:block z-[110]">
+                      <div className="bg-[#002A2B] border border-gray-600 rounded-lg shadow-2xl py-2">
+                        {industryLinks.map((sub, idx) => (
+                          <NavLink
+                            key={idx}
+                            to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}/${language === 'es' ? sub.pathEs : sub.pathCa}`}
+                            onClick={handleCloseMenu}
+                            className={({ isActive }) => `block px-4 py-2.5 text-sm transition-colors ${isActive ? 'text-[#00E8E5] bg-[#003A3B]' : 'text-white hover:bg-[#003A3B] hover:text-[#00E8E5]'}`}
+                          >
+                            {language === 'es' ? sub.labelEs : sub.labelCa}
+                          </NavLink>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={item.id}
+                  to={item.to}
+                  onClick={handleCloseMenu}
+                  className={({ isActive }) => `text-base font-medium transition-colors ${isActive ? 'text-[#00E8E5]' : 'text-white hover:text-[#00E8E5]'}`}
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
 
             <div className="relative" ref={langRef} onKeyDown={(e) => {
               const ev = e as React.KeyboardEvent<HTMLDivElement>;
@@ -186,7 +262,40 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-[#001F20] border-t border-gray-700">
           <div className="px-4 py-4 space-y-3">
-            {navItems.map((item) => (
+            {navItems.map((item) => {
+              if (item.id === 'services') {
+                return (
+                  <div key={item.id} className="block">
+                     <div className="flex items-center justify-between w-full py-2 px-4 text-white hover:text-[#00E8E5] hover:bg-[#002F30] rounded-lg cursor-pointer max-w-full"
+                          onClick={() => setIsServicesMobileOpen(!isServicesMobileOpen)}>
+                         <span className="font-medium text-base">{item.label}</span>
+                         <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMobileOpen ? 'rotate-180' : ''}`} />
+                     </div>
+                     {isServicesMobileOpen && (
+                         <div className="ml-4 space-y-2 mt-2 border-l border-gray-700 pl-2">
+                             <NavLink
+                                to={item.to}
+                                onClick={handleCloseMenu}
+                                className={({ isActive }) => `block py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-gray-300 hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
+                             >
+                                 {language === 'es' ? 'Todos los servicios' : 'Tots els serveis'}
+                             </NavLink>
+                             {industryLinks.map((sub, idx) => (
+                                <NavLink
+                                  key={idx}
+                                  to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}/${language === 'es' ? sub.pathEs : sub.pathCa}`}
+                                  onClick={handleCloseMenu}
+                                  className={({ isActive }) => `block py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-gray-300 hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
+                                >
+                                  {language === 'es' ? sub.labelEs : sub.labelCa}
+                                </NavLink>
+                              ))}
+                         </div>
+                     )}
+                  </div>
+                );
+              }
+              return (
               <NavLink
                 key={item.id}
                 to={item.to}
@@ -195,7 +304,7 @@ export default function Header() {
               >
                 {item.label}
               </NavLink>
-            ))}
+            )})}
 
             <div className="relative" ref={mobileLangRef} onKeyDown={(e) => {
               const ev = e as React.KeyboardEvent<HTMLDivElement>;

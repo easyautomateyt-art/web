@@ -10,6 +10,8 @@ import Footer from './components/Footer';
 import { LanguageProvider } from './context/LanguageContext';
 import { useEffect } from 'react';
 
+import IndustryPage from './pages/IndustryPage';
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -29,7 +31,14 @@ function AppRouter() {
             {/* Redirect root to default language (es) */}
             <Route path="/" element={<Home />} />
             <Route path="/es" element={<Home />} />
+            
             <Route path="/es/servicios" element={<Services />} />
+            <Route path="/es/servicios/restaurantes" element={<IndustryPage type="restaurants" />} />
+            <Route path="/es/servicios/peluquerias" element={<IndustryPage type="hairSalons" />} />
+            <Route path="/es/servicios/estetica" element={<IndustryPage type="beautyCenters" />} />
+            <Route path="/es/servicios/carnicerias" element={<IndustryPage type="butcherShops" />} />
+            <Route path="/es/servicios/panaderias" element={<IndustryPage type="bakeries" />} />
+            
             <Route path="/es/sobre" element={<About />} />
             <Route path="/es/contacto" element={<Contact />} />
             <Route path="/es/aviso-legal" element={<AvisoLegal />} />
@@ -37,6 +46,12 @@ function AppRouter() {
 
             <Route path="/ca" element={<Home />} />
             <Route path="/ca/serveis" element={<Services />} />
+            <Route path="/ca/serveis/restaurants" element={<IndustryPage type="restaurants" />} />
+            <Route path="/ca/serveis/perruqueries" element={<IndustryPage type="hairSalons" />} />
+            <Route path="/ca/serveis/estetica" element={<IndustryPage type="beautyCenters" />} />
+            <Route path="/ca/serveis/carnisseries" element={<IndustryPage type="butcherShops" />} />
+            <Route path="/ca/serveis/forns" element={<IndustryPage type="bakeries" />} />
+
             <Route path="/ca/sobre" element={<About />} />
             <Route path="/ca/contacte" element={<Contact />} />
             <Route path="/ca/avis-legal" element={<AvisoLegal />} />
