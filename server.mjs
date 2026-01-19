@@ -4,6 +4,7 @@ import fs from 'fs';
 // Load local .env in development (no effect if env vars provided by host)
 import 'dotenv/config';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +43,8 @@ async function startServer() {
 
   // Trust the first proxy (Easypanel/Docker load balancer) to fix rate limiter IP detection
   app.set('trust proxy', 1);
+
+  app.use(compression());
 
   // Health check endpoint - defined first to avoid being blocked by other routes
   app.get('/healthz', (req, res) => {
