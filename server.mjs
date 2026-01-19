@@ -4,11 +4,18 @@ import fs from 'fs';
 // Load local .env in development (no effect if env vars provided by host)
 import 'dotenv/config';
 import rateLimit from 'express-rate-limit';
+import pino from 'pino';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const port = process.env.PORT || 80;
+
+// Initialize async logger
+const logger = pino(pino.destination({
+  sync: false, // Asynchronous logging
+  minLength: 4096, // Buffer 4kb before writing
+}));
 
 async function startServer() {
   let express;
@@ -17,6 +24,7 @@ async function startServer() {
     // express may be default or named export depending on packaging
     express = mod.default || mod;
   } catch (e) {
+    // Use console.error for fatal startup errors to ensure they are printed before exit
     console.error('Failed to import express:', e && e.message ? e.message : e);
     try {
       const cwd = process.cwd();
@@ -72,7 +80,7 @@ async function startServer() {
   app.post('/api/contact', contactLimiter, async (req, res) => {
     try {
       const { name, email, message, accept } = req.body || {};
-      console.log('/api/contact received:', { name, email: email ? '[REDACTED]' : undefined, accept });
+      logger.info({ msg: '/api/contact received', data: { name, email: email ? '[REDACTED]' : undefined, accept } });
 
       // Basic validations
       if (!accept) {
@@ -96,7 +104,7 @@ async function startServer() {
       try {
         nodemailerMod = await import('nodemailer');
       } catch (e) {
-        console.error('nodemailer import failed:', e && e.message ? e.message : e);
+        logger.error(e, 'nodemailer import failed');
         return res.status(500).json({ ok: false, error: 'mailer_unavailable' });
       }
 
@@ -125,11 +133,11 @@ async function startServer() {
 
       // send mail
       const info = await transporter.sendMail(mailOptions);
-      console.log('Contact email sent:', info && info.messageId ? info.messageId : info);
+      logger.info({ msg: 'Contact email sent', info: info && info.messageId ? info.messageId : info });
 
       return res.json({ ok: true });
     } catch (err) {
-      console.error('Error in /api/contact:', err);
+      logger.error(err, 'Error in /api/contact');
       return res.status(500).json({ ok: false, error: 'server_error' });
     }
   });
@@ -141,7 +149,7 @@ async function startServer() {
       try {
         nodemailerMod = await import('nodemailer');
       } catch (e) {
-        console.error('nodemailer import failed:', e && e.message ? e.message : e);
+        logger.error(e, 'nodemailer import failed');
         return res.status(500).json({ ok: false, error: 'mailer_unavailable' });
       }
 
@@ -160,7 +168,7 @@ async function startServer() {
       await transporter.verify();
       return res.json({ ok: true, message: 'SMTP verified' });
     } catch (err) {
-      console.error('Error verifying SMTP:', err);
+      logger.error(err, 'Error verifying SMTP');
       return res.status(500).json({ ok: false, error: 'verify_failed' });
     }
   });
@@ -185,36 +193,40 @@ async function startServer() {
 
   const host = process.env.HOST || '0.0.0.0';
   const server = app.listen(port, host, () => {
-    console.log(`Server listening on ${host}:${port}`);
+    logger.info(`Server listening on ${host}:${port}`);
     try {
-      console.log('Process info: pid=', process.pid, 'ppid=', process.ppid);
-      console.log('Env snapshot: PORT=', process.env.PORT, 'HOST=', process.env.HOST, 'NODE_ENV=', process.env.NODE_ENV);
+      logger.info({ msg: 'Process info', pid: process.pid, ppid: process.ppid });
+      logger.info({ msg: 'Env snapshot', PORT: process.env.PORT, HOST: process.env.HOST, NODE_ENV: process.env.NODE_ENV });
       const mem = process.memoryUsage();
-      console.log('Memory usage (rss/heapUsed/heapTotal):', mem.rss, mem.heapUsed, mem.heapTotal);
+      logger.info({ msg: 'Memory usage', rss: mem.rss, heapUsed: mem.heapUsed, heapTotal: mem.heapTotal });
     } catch (e) {
-      console.error('Error logging process info:', e && e.message ? e.message : e);
+      logger.error(e, 'Error logging process info');
     }
   });
 
   // Graceful logging on termination and error handling
   process.on('SIGTERM', () => {
-    console.warn('Received SIGTERM, shutting down gracefully...');
-    try { server.close(() => console.log('HTTP server closed')); } catch (e) { console.error(e); }
+    logger.warn('Received SIGTERM, shutting down gracefully...');
+    try { server.close(() => logger.info('HTTP server closed')); } catch (e) { logger.error(e); }
     process.exit(0);
   });
 
   process.on('SIGINT', () => {
-    console.warn('Received SIGINT, shutting down...');
-    try { server.close(() => console.log('HTTP server closed')); } catch (e) { console.error(e); }
+    logger.warn('Received SIGINT, shutting down...');
+    try { server.close(() => logger.info('HTTP server closed')); } catch (e) { logger.error(e); }
     process.exit(0);
   });
 
   process.on('uncaughtException', (err) => {
-    console.error('Uncaught exception:', err && err.stack ? err.stack : err);
+    // Fatal errors should ideally be logged synchronously or flushed.
+    // We will use console.error for uncaughtException to be safe, as async logs might be lost on crash.
+    console.error('Uncaught exception:', err);
+    // Try to log with pino too if possible, but don't rely on it
+    try { logger.error(err, 'Uncaught exception'); } catch {}
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.error('Unhandled rejection:', reason);
+    logger.error(reason, 'Unhandled rejection');
   });
 }
 
