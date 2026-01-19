@@ -1,5 +1,5 @@
-import { Mail, Clock, Send } from 'lucide-react';
-import { useState, FormEvent } from 'react';
+import { Mail, Send } from 'lucide-react';
+import { useState, FormEvent, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Contact() {
@@ -14,7 +14,7 @@ export default function Contact() {
   const [acceptError, setAcceptError] = useState('');
   const [triedSubmit, setTriedSubmit] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     setTriedSubmit(true);
     // validate privacy acceptance
@@ -49,7 +49,7 @@ export default function Contact() {
       console.error('Contact send error', err);
       setStatus('error');
     }
-  };
+  }, [acceptedPrivacy, formData, t]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
