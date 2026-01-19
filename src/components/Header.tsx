@@ -61,66 +61,101 @@ export default function Header() {
     { id: 'contact', label: t.nav.contact, to: `${base}/${language === 'es' ? 'contacto' : 'contacte'}` },
   ];
 
-  const industryLinks = [
-    { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants' },
-    { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', pathEs: 'peluquerias', pathCa: 'perruqueries' },
-    { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', pathEs: 'estetica', pathCa: 'estetica' },
-    { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', pathEs: 'carnicerias', pathCa: 'carnisseries' },
-    { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', pathEs: 'panaderias', pathCa: 'forns' },
-  ];
+const industryLinks = [
+  { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants' },
+  { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', pathEs: 'peluquerias', pathCa: 'perruqueries' },
+  { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', pathEs: 'estetica', pathCa: 'estetica' },
+  { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', pathEs: 'carnicerias', pathCa: 'carnisseries' },
+  { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', pathEs: 'panaderias', pathCa: 'forns' },
+];
 
+const pathMapping: Record<string, Record<'es' | 'ca', string>> = {
+  '/': { es: '/es', ca: '/ca' },
+  '/services': { es: '/es/servicios', ca: '/ca/serveis' },
+  '/servicios': { es: '/es/servicios', ca: '/ca/serveis' },
+  '/serveis': { es: '/es/servicios', ca: '/ca/serveis' },
+  '/about': { es: '/es/sobre', ca: '/ca/sobre' },
+  '/sobre': { es: '/es/sobre', ca: '/ca/sobre' },
+  '/contact': { es: '/es/contacto', ca: '/ca/contacte' },
+  '/contacto': { es: '/es/contacto', ca: '/ca/contacte' },
+  '/contacte': { es: '/es/contacto', ca: '/ca/contacte' },
+  '/aviso-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
+  '/avis-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
+  '/politica-privacidad': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
+  '/politica-privacitat': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
+};
+
+industryLinks.forEach(ind => {
+  const esKey = `/servicios/${ind.pathEs}`;
+  pathMapping[esKey] = {
+    es: `/es/servicios/${ind.pathEs}`,
+    ca: `/ca/serveis/${ind.pathCa}`
+  };
+  const caKey = `/serveis/${ind.pathCa}`;
+  pathMapping[caKey] = {
+    es: `/es/servicios/${ind.pathEs}`,
+    ca: `/ca/serveis/${ind.pathCa}`
+  };
+});
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isServicesMobileOpen, setIsServicesMobileOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const [animateIn, setAnimateIn] = useState(false);
+  const langRef = useRef<HTMLDivElement | null>(null);
+  const mobileLangRef = useRef<HTMLDivElement | null>(null);
+  const langOptions = ['es', 'ca'] as const;
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const [focusIndex, setFocusIndex] = useState<number>(-1);
+  const toggleLangMenu = () => setIsLangOpen((s) => !s);
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      const clickedInsideDesktop = langRef.current && langRef.current.contains(target);
+      const clickedInsideMobile = mobileLangRef.current && mobileLangRef.current.contains(target);
+      if (isLangOpen && !clickedInsideDesktop && !clickedInsideMobile) {
+        setIsLangOpen(false);
+      }
+    }
+    window.addEventListener('mousedown', handleClickOutside);
+    return () => window.removeEventListener('mousedown', handleClickOutside);
+  }, [isLangOpen]);
+  useEffect(() => {
+    if (isLangOpen) {
+      // trigger enter animation
+      setAnimateIn(false);
+      requestAnimationFrame(() => setAnimateIn(true));
+      // focus initial option
+      const idx = langOptions.indexOf(language as any);
+      setFocusIndex(idx >= 0 ? idx : 0);
+      setTimeout(() => itemRefs.current[idx >= 0 ? idx : 0]?.focus(), 0);
+    } else {
+      setAnimateIn(false);
+      setFocusIndex(-1);
+    }
+  }, [isLangOpen, language]);
+  const handleCloseMenu = () => {
+    setIsMenuOpen(false);
+    setIsServicesMobileOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const base = language === 'es' ? '/es' : '/ca';
+  const navItems = [
+    { id: 'home', label: t.nav.home, to: `${base}` },
+    { id: 'services', label: t.nav.services, to: `${base}/${language === 'es' ? 'servicios' : 'serveis'}` },
+    { id: 'about', label: t.nav.about, to: `${base}/sobre` },
+    { id: 'contact', label: t.nav.contact, to: `${base}/${language === 'es' ? 'contacto' : 'contacte'}` },
+  ];
   const location = useLocation();
   const navigate = useNavigate();
-
   // when switching language, navigate to equivalent localized path
   const selectLanguage = (lang: 'es' | 'ca') => {
     setLanguage(lang);
     setIsLangOpen(false);
-    // compute target path mapping
     const current = location.pathname.replace(/^\/(es|ca)/, '') || '/';
-    
-    // Build dynamic mapping including generic pages and all industry pages
-    const baseMapping: Record<string, Record<'es'|'ca', string>> = {
-      '/': { es: '/es', ca: '/ca' },
-      '/services': { es: '/es/servicios', ca: '/ca/serveis' }, // For english-like fallback
-      '/servicios': { es: '/es/servicios', ca: '/ca/serveis' },
-      '/serveis': { es: '/es/servicios', ca: '/ca/serveis' },
-      
-      '/about': { es: '/es/sobre', ca: '/ca/sobre' },
-      '/sobre': { es: '/es/sobre', ca: '/ca/sobre' },
-
-      '/contact': { es: '/es/contacto', ca: '/ca/contacte' },
-      '/contacto': { es: '/es/contacto', ca: '/ca/contacte' },
-      '/contacte': { es: '/es/contacto', ca: '/ca/contacte' },
-
-      '/aviso-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
-      '/avis-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
-
-      '/politica-privacidad': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
-      '/politica-privacitat': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
-    };
-
-    // Add industry paths to mapping
-    industryLinks.forEach(ind => {
-      // From ES path
-      const esKey = `/servicios/${ind.pathEs}`;
-      baseMapping[esKey] = { 
-        es: `/es/servicios/${ind.pathEs}`, 
-        ca: `/ca/serveis/${ind.pathCa}` 
-      };
-      
-      // From CA path
-      const caKey = `/serveis/${ind.pathCa}`;
-      baseMapping[caKey] = { 
-        es: `/es/servicios/${ind.pathEs}`, 
-        ca: `/ca/serveis/${ind.pathCa}` 
-      };
-    });
-
-    // try to find a direct match or fallback to root of language
-    // normalized should just be the path without language prefix
     const normalized = current === '/' ? '/' : `/${current.replace(/^\//, '')}`;
-    const target = baseMapping[normalized]?.[lang] ?? (lang === 'es' ? '/es' : '/ca');
+    const target = pathMapping[normalized]?.[lang] ?? (lang === 'es' ? '/es' : '/ca');
     navigate(target);
   };
 
