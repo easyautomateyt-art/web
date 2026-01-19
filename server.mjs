@@ -4,6 +4,14 @@ import fs from 'fs';
 // Load local .env in development (no effect if env vars provided by host)
 import 'dotenv/config';
 import rateLimit from 'express-rate-limit';
+import pino from 'pino';
+
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production' ? {
+    target: 'pino-pretty'
+  } : undefined
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,7 +80,7 @@ async function startServer() {
   app.post('/api/contact', contactLimiter, async (req, res) => {
     try {
       const { name, email, message, accept } = req.body || {};
-      console.log('/api/contact received:', { name, email: email ? '[REDACTED]' : undefined, accept });
+      logger.info({ name, email: email ? '[REDACTED]' : undefined, accept }, '/api/contact received');
 
       // Basic validations
       if (!accept) {
