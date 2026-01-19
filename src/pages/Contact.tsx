@@ -1,4 +1,4 @@
-import { Mail, Clock, Send } from 'lucide-react';
+import { Mail, Send } from 'lucide-react';
 import { useState, FormEvent } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 

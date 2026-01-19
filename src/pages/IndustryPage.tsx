@@ -8,51 +8,50 @@ interface IndustryPageProps {
   type: IndustryKey;
 }
 
+const serviceConfig = [
+  {
+    key: 'reservations',
+    icon: Calendar,
+    color: 'from-teal-500 to-cyan-600',
+  },
+  {
+    key: 'orders',
+    icon: Package,
+    color: 'from-blue-500 to-indigo-600',
+  },
+  {
+    key: 'invoicing',
+    icon: FileText,
+    color: 'from-green-500 to-emerald-600',
+  },
+  {
+    key: 'stock',
+    icon: Database,
+    color: 'from-orange-500 to-red-600',
+  },
+  {
+    key: 'timeControl',
+    icon: Clock,
+    color: 'from-cyan-500 to-teal-600',
+  },
+  {
+    key: 'accounting',
+    icon: CreditCard,
+    color: 'from-purple-500 to-pink-600',
+  },
+];
+
 export default function IndustryPage({ type }: IndustryPageProps) {
   const { t, language } = useLanguage();
   const base = language === 'es' ? '/es' : '/ca';
   const contactPath = `${base}/${language === 'es' ? 'contacto' : 'contacte'}`;
 
   // Access the specific industry translations
-  // Using 'any' cast here to avoid strict typing issues until types are fully updated
-  const industryData = (t as any).industries?.[type];
+  const industryData = t.industries[type];
 
   if (!industryData) {
     return <Navigate to="/" />;
   }
-
-  const serviceConfig = [
-    {
-      key: 'reservations',
-      icon: Calendar,
-      color: 'from-teal-500 to-cyan-600',
-    },
-    {
-      key: 'orders',
-      icon: Package,
-      color: 'from-blue-500 to-indigo-600',
-    },
-    {
-      key: 'invoicing',
-      icon: FileText,
-      color: 'from-green-500 to-emerald-600',
-    },
-    {
-      key: 'stock',
-      icon: Database,
-      color: 'from-orange-500 to-red-600',
-    },
-    {
-      key: 'timeControl',
-      icon: Clock,
-      color: 'from-cyan-500 to-teal-600',
-    },
-    {
-      key: 'accounting',
-      icon: CreditCard,
-      color: 'from-purple-500 to-pink-600',
-    },
-  ];
 
   return (
     <div className="pt-16">
@@ -73,7 +72,8 @@ export default function IndustryPage({ type }: IndustryPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-20">
             {serviceConfig.map((config, index) => {
-              const serviceData = industryData[config.key];
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const serviceData = (industryData as any)[config.key];
               const Icon = config.icon;
               const isEven = index % 2 === 0;
 

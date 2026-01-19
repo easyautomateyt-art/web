@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 
+const langOptions = ['es', 'ca'] as const;
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesMobileOpen, setIsServicesMobileOpen] = useState(false);
@@ -13,7 +15,6 @@ export default function Header() {
   const langRef = useRef<HTMLDivElement | null>(null);
   const mobileLangRef = useRef<HTMLDivElement | null>(null);
 
-  const langOptions = ['es', 'ca'] as const;
   const itemRefs = useRef<Array<HTMLButtonElement | null>>( [] );
   const [focusIndex, setFocusIndex] = useState<number>(-1);
 
@@ -38,7 +39,7 @@ export default function Header() {
       setAnimateIn(false);
       requestAnimationFrame(() => setAnimateIn(true));
       // focus initial option
-      const idx = langOptions.indexOf(language as any);
+      const idx = langOptions.indexOf(language);
       setFocusIndex(idx >= 0 ? idx : 0);
       setTimeout(() => itemRefs.current[idx >= 0 ? idx : 0]?.focus(), 0);
     } else {
