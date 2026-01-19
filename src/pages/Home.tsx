@@ -1,67 +1,40 @@
+import { useMemo } from 'react';
 import { Calendar, Package, FileText, Database, CheckCircle, Cloud, HeadphonesIcon, RefreshCw, Clock, CreditCard } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
+
+const FEATURES_CONFIG = [
+  { icon: Calendar, key: 'reservations' },
+  { icon: Package, key: 'orders' },
+  { icon: FileText, key: 'invoicing' },
+  { icon: Database, key: 'stock' },
+  { icon: Clock, key: 'timeControl' },
+  { icon: CreditCard, key: 'accounting' },
+] as const;
+
+const BENEFITS_CONFIG = [
+  { icon: CheckCircle, key: 'easy' },
+  { icon: Cloud, key: 'cloud' },
+  { icon: HeadphonesIcon, key: 'support' },
+  { icon: RefreshCw, key: 'updates' },
+] as const;
 
 export default function Home() {
   const { t, language } = useLanguage();
   const base = language === 'es' ? '/es' : '/ca';
   const contactPath = `${base}/${language === 'es' ? 'contacto' : 'contacte'}`;
 
-  const features = [
-    {
-      icon: Calendar,
-      title: t.home.features.reservations.title,
-      description: t.home.features.reservations.description,
-    },
-    {
-      icon: Package,
-      title: t.home.features.orders.title,
-      description: t.home.features.orders.description,
-    },
-    {
-      icon: FileText,
-      title: t.home.features.invoicing.title,
-      description: t.home.features.invoicing.description,
-    },
-    {
-      icon: Database,
-      title: t.home.features.stock.title,
-      description: t.home.features.stock.description,
-    },
-    {
-      icon: Clock,
-      title: t.home.features.timeControl.title,
-      description: t.home.features.timeControl.description,
-    },
-    {
-      icon: CreditCard,
-      title: t.home.features.accounting.title,
-      description: t.home.features.accounting.description,
-    },
-  ];
+  const features = useMemo(() => FEATURES_CONFIG.map(({ icon, key }) => ({
+    icon,
+    title: t.home.features[key].title,
+    description: t.home.features[key].description,
+  })), [t]);
 
-  const benefits = [
-    {
-      icon: CheckCircle,
-      title: t.home.benefits.easy.title,
-      description: t.home.benefits.easy.description,
-    },
-    {
-      icon: Cloud,
-      title: t.home.benefits.cloud.title,
-      description: t.home.benefits.cloud.description,
-    },
-    {
-      icon: HeadphonesIcon,
-      title: t.home.benefits.support.title,
-      description: t.home.benefits.support.description,
-    },
-    {
-      icon: RefreshCw,
-      title: t.home.benefits.updates.title,
-      description: t.home.benefits.updates.description,
-    },
-  ];
+  const benefits = useMemo(() => BENEFITS_CONFIG.map(({ icon, key }) => ({
+    icon,
+    title: t.home.benefits[key].title,
+    description: t.home.benefits[key].description,
+  })), [t]);
 
   return (
     <div className="pt-16">
