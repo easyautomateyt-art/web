@@ -1,4 +1,4 @@
-import { Mail, Clock, Send } from 'lucide-react';
+import { Mail, Send, Loader2 } from 'lucide-react';
 import { useState, FormEvent } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -81,7 +81,7 @@ export default function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t.contact.form.name}
+                      {t.contact.form.name} <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       type="text"
@@ -90,13 +90,14 @@ export default function Contact() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#00E8E5] focus:outline-none transition-colors"
+                      aria-required="true"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/50 transition-colors"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t.contact.form.email}
+                      {t.contact.form.email} <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       type="email"
@@ -105,7 +106,8 @@ export default function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#00E8E5] focus:outline-none transition-colors"
+                      aria-required="true"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/50 transition-colors"
                     />
                   </div>
 
@@ -113,7 +115,7 @@ export default function Contact() {
 
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t.contact.form.message}
+                      {t.contact.form.message} <span className="text-red-500 ml-1">*</span>
                     </label>
                     <textarea
                       id="message"
@@ -121,8 +123,9 @@ export default function Contact() {
                       value={formData.message}
                       onChange={handleChange}
                       required
+                      aria-required="true"
                       rows={6}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#00E8E5] focus:outline-none transition-colors resize-none"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/50 transition-colors resize-none"
                     />
                   </div>
 
@@ -165,7 +168,7 @@ export default function Contact() {
                   >
                     {status === 'sending' ? (
                       <>
-                        <span className="animate-spin mr-2">⏳</span>
+                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
                         {t.contact.form.sending}
                       </>
                     ) : (
