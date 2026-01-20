@@ -71,6 +71,37 @@ async function startServer() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  let cachedTransporter = null;
+  let nodemailerMod = null;
+
+  const getMailTransporter = async () => {
+    if (cachedTransporter) return cachedTransporter;
+
+    if (!nodemailerMod) {
+      try {
+        nodemailerMod = await import('nodemailer');
+      } catch (e) {
+        console.error('nodemailer import failed:', e && e.message ? e.message : e);
+        throw new Error('mailer_unavailable');
+      }
+    }
+
+    const nodemailer = nodemailerMod.default || nodemailerMod;
+
+    // Build transporter from environment variables
+    cachedTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      } : undefined,
+    });
+
+    return cachedTransporter;
+  };
+
   // Simple contact API endpoint — sends email using SMTP configured via env
   app.post('/api/contact', contactLimiter, async (req, res) => {
     try {
@@ -95,26 +126,12 @@ async function startServer() {
       }
 
       // lazy-load nodemailer so startup still fails earlier if dependency missing
-      let nodemailerMod;
+      let transporter;
       try {
-        nodemailerMod = await import('nodemailer');
+        transporter = await getMailTransporter();
       } catch (e) {
-        console.error('nodemailer import failed:', e && e.message ? e.message : e);
         return res.status(500).json({ ok: false, error: 'mailer_unavailable' });
       }
-
-      const nodemailer = nodemailerMod.default || nodemailerMod;
-
-      // Build transporter from environment variables
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        } : undefined,
-      });
 
       const to = process.env.TO_EMAIL || 'admin@onereserve.es';
 
@@ -140,25 +157,12 @@ async function startServer() {
   // Verify SMTP credentials without sending an email
   app.post('/api/contact/verify', async (req, res) => {
     try {
-      let nodemailerMod;
+      let transporter;
       try {
-        nodemailerMod = await import('nodemailer');
+        transporter = await getMailTransporter();
       } catch (e) {
-        console.error('nodemailer import failed:', e && e.message ? e.message : e);
         return res.status(500).json({ ok: false, error: 'mailer_unavailable' });
       }
-
-      const nodemailer = nodemailerMod.default || nodemailerMod;
-
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        } : undefined,
-      });
 
       await transporter.verify();
       return res.json({ ok: true, message: 'SMTP verified' });
