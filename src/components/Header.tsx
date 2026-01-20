@@ -1,7 +1,15 @@
 import { Menu, X, Globe, ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+
+const INDUSTRY_LINKS = [
+  { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants' },
+  { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', pathEs: 'peluquerias', pathCa: 'perruqueries' },
+  { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', pathEs: 'estetica', pathCa: 'estetica' },
+  { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', pathEs: 'carnicerias', pathCa: 'carnisseries' },
+  { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', pathEs: 'panaderias', pathCa: 'forns' },
+];
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,20 +62,12 @@ export default function Header() {
   };
 
   const base = language === 'es' ? '/es' : '/ca';
-  const navItems = [
+  const navItems = useMemo(() => [
     { id: 'home', label: t.nav.home, to: `${base}` },
     { id: 'services', label: t.nav.services, to: `${base}/${language === 'es' ? 'servicios' : 'serveis'}` },
     { id: 'about', label: t.nav.about, to: `${base}/sobre` },
     { id: 'contact', label: t.nav.contact, to: `${base}/${language === 'es' ? 'contacto' : 'contacte'}` },
-  ];
-
-  const industryLinks = [
-    { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants' },
-    { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', pathEs: 'peluquerias', pathCa: 'perruqueries' },
-    { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', pathEs: 'estetica', pathCa: 'estetica' },
-    { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', pathEs: 'carnicerias', pathCa: 'carnisseries' },
-    { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', pathEs: 'panaderias', pathCa: 'forns' },
-  ];
+  ], [base, language, t.nav.home, t.nav.services, t.nav.about, t.nav.contact]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -101,7 +101,7 @@ export default function Header() {
     };
 
     // Add industry paths to mapping
-    industryLinks.forEach(ind => {
+    INDUSTRY_LINKS.forEach(ind => {
       // From ES path
       const esKey = `/servicios/${ind.pathEs}`;
       baseMapping[esKey] = { 
@@ -154,7 +154,7 @@ export default function Header() {
                     {/* Dropdown Content */}
                     <div className="absolute left-0 top-full pt-2 w-64 hidden group-hover:block z-[110]">
                       <div className="bg-[#002A2B] border border-gray-600 rounded-lg shadow-2xl py-2">
-                        {industryLinks.map((sub, idx) => (
+                        {INDUSTRY_LINKS.map((sub, idx) => (
                           <NavLink
                             key={idx}
                             to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}/${language === 'es' ? sub.pathEs : sub.pathCa}`}
@@ -280,7 +280,7 @@ export default function Header() {
                              >
                                  {language === 'es' ? 'Todos los servicios' : 'Tots els serveis'}
                              </NavLink>
-                             {industryLinks.map((sub, idx) => (
+                             {INDUSTRY_LINKS.map((sub, idx) => (
                                 <NavLink
                                   key={idx}
                                   to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}/${language === 'es' ? sub.pathEs : sub.pathCa}`}
