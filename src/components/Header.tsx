@@ -46,7 +46,7 @@ export default function Header() {
       setAnimateIn(false);
       requestAnimationFrame(() => setAnimateIn(true));
       // focus initial option
-      const idx = langOptions.indexOf(language as any);
+      const idx = langOptions.indexOf(language as (typeof langOptions)[number]);
       setFocusIndex(idx >= 0 ? idx : 0);
       setTimeout(() => itemRefs.current[idx >= 0 ? idx : 0]?.focus(), 0);
     } else {
@@ -251,8 +251,10 @@ export default function Header() {
           </nav>
 
           <button
-            className="md:hidden text-white"
+            className="md:hidden text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00E8E5]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? t.nav.menuClose : t.nav.menuOpen}
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
