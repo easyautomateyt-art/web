@@ -10,6 +10,8 @@ export const translations = {
       about: 'Sobre OneReserve',
       contact: 'Contacto',
       access: 'Acceder',
+      menuOpen: 'Abrir menú',
+      menuClose: 'Cerrar menú',
     },
     home: {
       hero: {
@@ -659,6 +661,8 @@ export const translations = {
       about: 'Sobre OneReserve',
       contact: 'Contacte',
       access: 'Accedir',
+      menuOpen: 'Obrir menú',
+      menuClose: 'Tancar menú',
     },
     home: {
       hero: {
