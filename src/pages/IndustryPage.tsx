@@ -14,8 +14,7 @@ export default function IndustryPage({ type }: IndustryPageProps) {
   const contactPath = `${base}/${language === 'es' ? 'contacto' : 'contacte'}`;
 
   // Access the specific industry translations
-  // Using 'any' cast here to avoid strict typing issues until types are fully updated
-  const industryData = (t as any).industries?.[type];
+  const industryData = t.industries?.[type];
 
   if (!industryData) {
     return <Navigate to="/" />;
@@ -73,7 +72,7 @@ export default function IndustryPage({ type }: IndustryPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-20">
             {serviceConfig.map((config, index) => {
-              const serviceData = industryData[config.key];
+              const serviceData = industryData[config.key as Exclude<keyof typeof industryData, 'title' | 'subtitle'>];
               const Icon = config.icon;
               const isEven = index % 2 === 0;
 
