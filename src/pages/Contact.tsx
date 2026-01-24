@@ -156,7 +156,7 @@ export default function Contact() {
                   </div>
 
                   {(acceptError || (triedSubmit && !acceptedPrivacy)) && (
-                    <div className="text-sm text-red-600">{acceptError || t.contact.form.acceptError}</div>
+                    <div role="alert" className="text-sm text-red-600">{acceptError || t.contact.form.acceptError}</div>
                   )}
 
                   <button
@@ -180,13 +180,13 @@ export default function Contact() {
                   </button>
 
                   {status === 'success' && (
-                    <div className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg">
+                    <div role="status" className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg">
                       {t.contact.form.success}
                     </div>
                   )}
 
                   {status === 'error' && (
-                    <div className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+                    <div role="alert" className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg">
                       {t.contact.form.error}
                     </div>
                   )}
