@@ -140,6 +140,8 @@ export default function Contact() {
                         setAcceptedPrivacy(checked);
                         if (checked) setAcceptError('');
                       }}
+                      aria-invalid={!!acceptError || (triedSubmit && !acceptedPrivacy)}
+                      aria-describedby={(acceptError || (triedSubmit && !acceptedPrivacy)) ? "accept-error" : undefined}
                       className="h-4 w-4 mt-1 mr-3"
                     />
                     <label htmlFor="accept" className="text-sm text-gray-700">
@@ -156,15 +158,16 @@ export default function Contact() {
                   </div>
 
                   {(acceptError || (triedSubmit && !acceptedPrivacy)) && (
-                    <div className="text-sm text-red-600">{acceptError || t.contact.form.acceptError}</div>
+                    <div id="accept-error" role="alert" className="text-sm text-red-600">
+                      {acceptError || t.contact.form.acceptError}
+                    </div>
                   )}
 
                   <button
                     type="submit"
-                    disabled={status === 'sending' || !acceptedPrivacy}
-                    aria-disabled={status === 'sending' || !acceptedPrivacy}
+                    disabled={status === 'sending'}
+                    aria-disabled={status === 'sending'}
                     className="w-full bg-[#00E8E5] text-[#001F20] px-6 py-4 rounded-lg font-semibold text-lg hover:bg-[#00d4d1] transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
-                    title={!acceptedPrivacy ? t.contact.form.acceptError : undefined}
                   >
                     {status === 'sending' ? (
                       <>
@@ -180,13 +183,13 @@ export default function Contact() {
                   </button>
 
                   {status === 'success' && (
-                    <div className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg">
+                    <div role="status" aria-live="polite" className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg">
                       {t.contact.form.success}
                     </div>
                   )}
 
                   {status === 'error' && (
-                    <div className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+                    <div role="alert" aria-live="assertive" className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg">
                       {t.contact.form.error}
                     </div>
                   )}
