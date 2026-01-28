@@ -140,7 +140,7 @@ export default function Contact() {
                         setAcceptedPrivacy(checked);
                         if (checked) setAcceptError('');
                       }}
-                      className="h-4 w-4 mt-1 mr-3"
+                      className="h-5 w-5 mt-1 mr-3 rounded border-gray-300 text-[#00E8E5] focus:ring-[#00E8E5] cursor-pointer accent-[#00E8E5]"
                     />
                     <label htmlFor="accept" className="text-sm text-gray-700">
                       {t.contact.form.acceptPrefix}{' '}
@@ -161,10 +161,9 @@ export default function Contact() {
 
                   <button
                     type="submit"
-                    disabled={status === 'sending' || !acceptedPrivacy}
-                    aria-disabled={status === 'sending' || !acceptedPrivacy}
+                    disabled={status === 'sending'}
+                    aria-disabled={status === 'sending'}
                     className="w-full bg-[#00E8E5] text-[#001F20] px-6 py-4 rounded-lg font-semibold text-lg hover:bg-[#00d4d1] transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
-                    title={!acceptedPrivacy ? t.contact.form.acceptError : undefined}
                   >
                     {status === 'sending' ? (
                       <>
