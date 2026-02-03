@@ -1,5 +1,5 @@
 import { Mail, Send, Loader2 } from 'lucide-react';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Contact() {
@@ -13,6 +13,7 @@ export default function Contact() {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptError, setAcceptError] = useState('');
   const [triedSubmit, setTriedSubmit] = useState(false);
+  const privacyCheckboxRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,6 +21,7 @@ export default function Contact() {
     // validate privacy acceptance
     if (!acceptedPrivacy) {
       setAcceptError(t.contact.form.acceptError);
+      privacyCheckboxRef.current?.focus();
       return;
     }
     setAcceptError('');
@@ -41,6 +43,8 @@ export default function Contact() {
 
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
+      setAcceptedPrivacy(false);
+      setTriedSubmit(false);
 
       setTimeout(() => {
         setStatus('idle');
@@ -111,8 +115,6 @@ export default function Contact() {
                     />
                   </div>
 
-                  
-
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
                       {t.contact.form.message} <span className="text-red-500 ml-1">*</span>
@@ -131,6 +133,7 @@ export default function Contact() {
 
                   <div className="flex items-start">
                     <input
+                      ref={privacyCheckboxRef}
                       id="accept"
                       name="accept"
                       type="checkbox"
@@ -140,15 +143,17 @@ export default function Contact() {
                         setAcceptedPrivacy(checked);
                         if (checked) setAcceptError('');
                       }}
-                      className="h-4 w-4 mt-1 mr-3"
+                      className="h-5 w-5 mt-1 mr-3 accent-[#00E8E5] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00E8E5]/50 rounded"
+                      aria-describedby="accept-error"
+                      aria-invalid={!!acceptError}
                     />
-                    <label htmlFor="accept" className="text-sm text-gray-700">
+                    <label htmlFor="accept" className="text-sm text-gray-700 cursor-pointer">
                       {t.contact.form.acceptPrefix}{' '}
                       <a
                         href={`${window.location.origin}${window.location.pathname}#${language === 'es' ? 'politica-privacidad' : 'politica-privacitat'}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#00E8E5] underline"
+                        className="text-[#00E8E5] underline hover:text-[#00d4d1]"
                       >
                         {t.contact.form.acceptLink}
                       </a>
@@ -156,37 +161,39 @@ export default function Contact() {
                   </div>
 
                   {(acceptError || (triedSubmit && !acceptedPrivacy)) && (
-                    <div className="text-sm text-red-600">{acceptError || t.contact.form.acceptError}</div>
+                    <div id="accept-error" className="text-sm text-red-600 font-medium" role="alert">
+                      {acceptError || t.contact.form.acceptError}
+                    </div>
                   )}
 
                   <button
                     type="submit"
-                    disabled={status === 'sending' || !acceptedPrivacy}
-                    aria-disabled={status === 'sending' || !acceptedPrivacy}
-                    className="w-full bg-[#00E8E5] text-[#001F20] px-6 py-4 rounded-lg font-semibold text-lg hover:bg-[#00d4d1] transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+                    disabled={status === 'sending'}
+                    aria-disabled={status === 'sending'}
+                    className="w-full bg-[#00E8E5] text-[#001F20] px-6 py-4 rounded-lg font-semibold text-lg hover:bg-[#00d4d1] transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00E8E5]"
                     title={!acceptedPrivacy ? t.contact.form.acceptError : undefined}
                   >
                     {status === 'sending' ? (
                       <>
-                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                        <Loader2 className="animate-spin mr-2 h-5 w-5" aria-hidden="true" />
                         {t.contact.form.sending}
                       </>
                     ) : (
                       <>
-                        <Send className="h-5 w-5 mr-2" />
+                        <Send className="h-5 w-5 mr-2" aria-hidden="true" />
                         {t.contact.form.send}
                       </>
                     )}
                   </button>
 
                   {status === 'success' && (
-                    <div className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg">
+                    <div className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg" role="status">
                       {t.contact.form.success}
                     </div>
                   )}
 
                   {status === 'error' && (
-                    <div className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+                    <div className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg" role="alert">
                       {t.contact.form.error}
                     </div>
                   )}
@@ -201,7 +208,7 @@ export default function Contact() {
                 <div className="space-y-6">
                   <div className="flex items-start">
                     <div className="bg-[#00E8E5] p-3 rounded-lg mr-4">
-                      <Mail className="h-6 w-6 text-[#001F20]" />
+                      <Mail className="h-6 w-6 text-[#001F20]" aria-hidden="true" />
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">{t.contact.info.email}</h4>
@@ -213,12 +220,8 @@ export default function Contact() {
                       </a>
                     </div>
                   </div>
-
-                  {/* Horario de atención removido por solicitud del usuario */}
                 </div>
               </div>
-
-              {/* CTA removed per request: 'Únete a cientos...' and 'Acceder' */}
             </div>
           </div>
         </div>
