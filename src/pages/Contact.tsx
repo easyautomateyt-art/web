@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { Mail, Send } from 'lucide-react';
-=======
 import { Mail, Send, Loader2 } from 'lucide-react';
->>>>>>> 66f977c093d86aa2023a8ef29813770e7f5b1873
 import { useState, FormEvent } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
