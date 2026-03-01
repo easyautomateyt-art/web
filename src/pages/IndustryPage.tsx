@@ -10,8 +10,9 @@ interface IndustryPageProps {
 
 export default function IndustryPage({ type }: IndustryPageProps) {
   const { t, language } = useLanguage();
-  const base = language === 'es' ? '/es' : '/ca';
-  const contactPath = `${base}/${language === 'es' ? 'contacto' : 'contacte'}`;
+  const base = language === 'es' ? '/es' : language === 'ca' ? '/ca' : '/en';
+  const contactSlug = language === 'es' ? 'contacto' : language === 'ca' ? 'contacte' : 'contact';
+  const contactPath = `${base}/${contactSlug}`;
 
   // Access the specific industry translations
   // Using 'any' cast here to avoid strict typing issues until types are fully updated
@@ -78,8 +79,8 @@ export default function IndustryPage({ type }: IndustryPageProps) {
               const isEven = index % 2 === 0;
 
               // Ensure we have features array
-              const features = Array.isArray(serviceData.features) 
-                ? serviceData.features 
+              const features = Array.isArray(serviceData.features)
+                ? serviceData.features
                 : Object.values(serviceData.features || {});
 
               return (

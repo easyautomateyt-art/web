@@ -1,6 +1,7 @@
-import { Mail, Clock, Send } from 'lucide-react';
+import { Mail, Send } from 'lucide-react';
 import { useState, FormEvent } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { Link } from 'react-router-dom';
 
 export default function Contact() {
   const { t, language } = useLanguage();
@@ -13,6 +14,11 @@ export default function Contact() {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptError, setAcceptError] = useState('');
   const [triedSubmit, setTriedSubmit] = useState(false);
+
+  // Compute the correct privacy policy route
+  const base = language === 'es' ? '/es' : language === 'ca' ? '/ca' : '/en';
+  const privacySlug = language === 'es' ? 'politica-privacidad' : language === 'ca' ? 'politica-privacitat' : 'privacy-policy';
+  const privacyPath = `${base}/${privacySlug}`;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -109,7 +115,7 @@ export default function Contact() {
                     />
                   </div>
 
-                  
+
 
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
@@ -141,14 +147,14 @@ export default function Contact() {
                     />
                     <label htmlFor="accept" className="text-sm text-gray-700">
                       {t.contact.form.acceptPrefix}{' '}
-                      <a
-                        href={`${window.location.origin}${window.location.pathname}#${language === 'es' ? 'politica-privacidad' : 'politica-privacitat'}`}
+                      <Link
+                        to={privacyPath}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#00E8E5] underline"
+                        className="text-[#00E8E5] underline hover:text-[#00d4d1]"
                       >
                         {t.contact.form.acceptLink}
-                      </a>
+                      </Link>
                     </label>
                   </div>
 

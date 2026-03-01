@@ -4,9 +4,12 @@ import { NavLink, Link } from 'react-router-dom';
 export default function Footer() {
   const { t, language } = useLanguage();
 
-  const avisoSlug = language === 'es' ? 'aviso-legal' : 'avis-legal';
-  const privacySlug = language === 'es' ? 'politica-privacidad' : 'politica-privacitat';
-  const base = language === 'es' ? '/es' : '/ca';
+  const base = language === 'es' ? '/es' : language === 'ca' ? '/ca' : '/en';
+  const avisoSlug = language === 'es' ? 'aviso-legal' : language === 'ca' ? 'avis-legal' : 'legal-notice';
+  const privacySlug = language === 'es' ? 'politica-privacidad' : language === 'ca' ? 'politica-privacitat' : 'privacy-policy';
+  const servicesSlug = language === 'es' ? 'servicios' : language === 'ca' ? 'serveis' : 'services';
+  const contactSlug = language === 'es' ? 'contacto' : language === 'ca' ? 'contacte' : 'contact';
+  const aboutSlug = language === 'en' ? 'about' : 'sobre';
 
   return (
     <footer className="bg-[#001F20] text-white">
@@ -28,19 +31,19 @@ export default function Footer() {
                 <NavLink to={`${base}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.home}</NavLink>
               </li>
               <li>
-                <NavLink to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.services}</NavLink>
+                <NavLink to={`${base}/${servicesSlug}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.services}</NavLink>
               </li>
               <li>
-                <NavLink to={`${base}/sobre`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.about}</NavLink>
+                <NavLink to={`${base}/${aboutSlug}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.about}</NavLink>
               </li>
               <li>
-                <NavLink to={`${base}/${language === 'es' ? 'contacto' : 'contacte'}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.contact}</NavLink>
+                <NavLink to={`${base}/${contactSlug}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.nav.contact}</NavLink>
               </li>
               <li>
-                <a href={`${window.location.origin}${base}/${avisoSlug}`} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.footer.legalLink}</a>
+                <Link to={`${base}/${avisoSlug}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.footer.legalLink}</Link>
               </li>
               <li>
-                <a href={`${window.location.origin}${base}/${privacySlug}`} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.footer.privacyLink}</a>
+                <Link to={`${base}/${privacySlug}`} className="text-gray-300 hover:text-[#00E8E5] transition-colors">{t.footer.privacyLink}</Link>
               </li>
             </ul>
           </div>

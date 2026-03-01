@@ -31,14 +31,14 @@ function AppRouter() {
             {/* Redirect root to default language (es) */}
             <Route path="/" element={<Home />} />
             <Route path="/es" element={<Home />} />
-            
+
             <Route path="/es/servicios" element={<Services />} />
             <Route path="/es/servicios/restaurantes" element={<IndustryPage type="restaurants" />} />
             <Route path="/es/servicios/peluquerias" element={<IndustryPage type="hairSalons" />} />
             <Route path="/es/servicios/estetica" element={<IndustryPage type="beautyCenters" />} />
             <Route path="/es/servicios/carnicerias" element={<IndustryPage type="butcherShops" />} />
             <Route path="/es/servicios/panaderias" element={<IndustryPage type="bakeries" />} />
-            
+
             <Route path="/es/sobre" element={<About />} />
             <Route path="/es/contacto" element={<Contact />} />
             <Route path="/es/aviso-legal" element={<AvisoLegal />} />
@@ -56,6 +56,20 @@ function AppRouter() {
             <Route path="/ca/contacte" element={<Contact />} />
             <Route path="/ca/avis-legal" element={<AvisoLegal />} />
             <Route path="/ca/politica-privacitat" element={<PrivacyPolicy />} />
+
+            {/* English routes */}
+            <Route path="/en" element={<Home />} />
+            <Route path="/en/services" element={<Services />} />
+            <Route path="/en/services/restaurants" element={<IndustryPage type="restaurants" />} />
+            <Route path="/en/services/hair-salons" element={<IndustryPage type="hairSalons" />} />
+            <Route path="/en/services/beauty-centres" element={<IndustryPage type="beautyCenters" />} />
+            <Route path="/en/services/butcher-shops" element={<IndustryPage type="butcherShops" />} />
+            <Route path="/en/services/bakeries" element={<IndustryPage type="bakeries" />} />
+
+            <Route path="/en/about" element={<About />} />
+            <Route path="/en/contact" element={<Contact />} />
+            <Route path="/en/legal-notice" element={<AvisoLegal />} />
+            <Route path="/en/privacy-policy" element={<PrivacyPolicy />} />
 
             <Route path="*" element={<Home />} />
           </Routes>

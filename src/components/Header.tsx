@@ -13,8 +13,8 @@ export default function Header() {
   const langRef = useRef<HTMLDivElement | null>(null);
   const mobileLangRef = useRef<HTMLDivElement | null>(null);
 
-  const langOptions = ['es', 'ca'] as const;
-  const itemRefs = useRef<Array<HTMLButtonElement | null>>( [] );
+  const langOptions = ['es', 'ca', 'en'] as const;
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [focusIndex, setFocusIndex] = useState<number>(-1);
 
   const toggleLangMenu = () => setIsLangOpen((s) => !s);
@@ -53,76 +53,101 @@ export default function Header() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const base = language === 'es' ? '/es' : '/ca';
+  // Helper to compute lang-dependent paths
+  const getBase = (lang: string) => lang === 'es' ? '/es' : lang === 'ca' ? '/ca' : '/en';
+  const getServicesSlug = (lang: string) => lang === 'es' ? 'servicios' : lang === 'ca' ? 'serveis' : 'services';
+  const getContactSlug = (lang: string) => lang === 'es' ? 'contacto' : lang === 'ca' ? 'contacte' : 'contact';
+  const getAboutSlug = () => 'sobre'; // same for es/ca; en uses 'about'
+
+  const base = getBase(language);
   const navItems = [
     { id: 'home', label: t.nav.home, to: `${base}` },
-    { id: 'services', label: t.nav.services, to: `${base}/${language === 'es' ? 'servicios' : 'serveis'}` },
-    { id: 'about', label: t.nav.about, to: `${base}/sobre` },
-    { id: 'contact', label: t.nav.contact, to: `${base}/${language === 'es' ? 'contacto' : 'contacte'}` },
+    { id: 'services', label: t.nav.services, to: `${base}/${getServicesSlug(language)}` },
+    { id: 'about', label: t.nav.about, to: language === 'en' ? `${base}/about` : `${base}/sobre` },
+    { id: 'contact', label: t.nav.contact, to: `${base}/${getContactSlug(language)}` },
   ];
 
   const industryLinks = [
-    { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants' },
-    { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', pathEs: 'peluquerias', pathCa: 'perruqueries' },
-    { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', pathEs: 'estetica', pathCa: 'estetica' },
-    { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', pathEs: 'carnicerias', pathCa: 'carnisseries' },
-    { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', pathEs: 'panaderias', pathCa: 'forns' },
+    { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', labelEn: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants', pathEn: 'restaurants' },
+    { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', labelEn: 'Hair Salons', pathEs: 'peluquerias', pathCa: 'perruqueries', pathEn: 'hair-salons' },
+    { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', labelEn: 'Beauty Centres', pathEs: 'estetica', pathCa: 'estetica', pathEn: 'beauty-centres' },
+    { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', labelEn: 'Butcher Shops', pathEs: 'carnicerias', pathCa: 'carnisseries', pathEn: 'butcher-shops' },
+    { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', labelEn: 'Bakeries', pathEs: 'panaderias', pathCa: 'forns', pathEn: 'bakeries' },
   ];
+
+  const getIndustryLabel = (sub: typeof industryLinks[0]) =>
+    language === 'es' ? sub.labelEs : language === 'ca' ? sub.labelCa : sub.labelEn;
+
+  const getIndustryPath = (sub: typeof industryLinks[0]) =>
+    language === 'es' ? sub.pathEs : language === 'ca' ? sub.pathCa : sub.pathEn;
 
   const location = useLocation();
   const navigate = useNavigate();
 
   // when switching language, navigate to equivalent localized path
-  const selectLanguage = (lang: 'es' | 'ca') => {
+  const selectLanguage = (lang: 'es' | 'ca' | 'en') => {
     setLanguage(lang);
     setIsLangOpen(false);
     // compute target path mapping
-    const current = location.pathname.replace(/^\/(es|ca)/, '') || '/';
-    
+    const current = location.pathname.replace(/^\/(es|ca|en)/, '') || '/';
+
     // Build dynamic mapping including generic pages and all industry pages
-    const baseMapping: Record<string, Record<'es'|'ca', string>> = {
-      '/': { es: '/es', ca: '/ca' },
-      '/services': { es: '/es/servicios', ca: '/ca/serveis' }, // For english-like fallback
-      '/servicios': { es: '/es/servicios', ca: '/ca/serveis' },
-      '/serveis': { es: '/es/servicios', ca: '/ca/serveis' },
-      
-      '/about': { es: '/es/sobre', ca: '/ca/sobre' },
-      '/sobre': { es: '/es/sobre', ca: '/ca/sobre' },
+    const baseMapping: Record<string, Record<'es' | 'ca' | 'en', string>> = {
+      '/': { es: '/es', ca: '/ca', en: '/en' },
+      '/services': { es: '/es/servicios', ca: '/ca/serveis', en: '/en/services' },
+      '/servicios': { es: '/es/servicios', ca: '/ca/serveis', en: '/en/services' },
+      '/serveis': { es: '/es/servicios', ca: '/ca/serveis', en: '/en/services' },
 
-      '/contact': { es: '/es/contacto', ca: '/ca/contacte' },
-      '/contacto': { es: '/es/contacto', ca: '/ca/contacte' },
-      '/contacte': { es: '/es/contacto', ca: '/ca/contacte' },
+      '/about': { es: '/es/sobre', ca: '/ca/sobre', en: '/en/about' },
+      '/sobre': { es: '/es/sobre', ca: '/ca/sobre', en: '/en/about' },
 
-      '/aviso-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
-      '/avis-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal' },
+      '/contact': { es: '/es/contacto', ca: '/ca/contacte', en: '/en/contact' },
+      '/contacto': { es: '/es/contacto', ca: '/ca/contacte', en: '/en/contact' },
+      '/contacte': { es: '/es/contacto', ca: '/ca/contacte', en: '/en/contact' },
 
-      '/politica-privacidad': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
-      '/politica-privacitat': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat' },
+      '/aviso-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal', en: '/en/legal-notice' },
+      '/avis-legal': { es: '/es/aviso-legal', ca: '/ca/avis-legal', en: '/en/legal-notice' },
+      '/legal-notice': { es: '/es/aviso-legal', ca: '/ca/avis-legal', en: '/en/legal-notice' },
+
+      '/politica-privacidad': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat', en: '/en/privacy-policy' },
+      '/politica-privacitat': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat', en: '/en/privacy-policy' },
+      '/privacy-policy': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat', en: '/en/privacy-policy' },
     };
 
     // Add industry paths to mapping
     industryLinks.forEach(ind => {
       // From ES path
       const esKey = `/servicios/${ind.pathEs}`;
-      baseMapping[esKey] = { 
-        es: `/es/servicios/${ind.pathEs}`, 
-        ca: `/ca/serveis/${ind.pathCa}` 
+      baseMapping[esKey] = {
+        es: `/es/servicios/${ind.pathEs}`,
+        ca: `/ca/serveis/${ind.pathCa}`,
+        en: `/en/services/${ind.pathEn}`,
       };
-      
+
       // From CA path
       const caKey = `/serveis/${ind.pathCa}`;
-      baseMapping[caKey] = { 
-        es: `/es/servicios/${ind.pathEs}`, 
-        ca: `/ca/serveis/${ind.pathCa}` 
+      baseMapping[caKey] = {
+        es: `/es/servicios/${ind.pathEs}`,
+        ca: `/ca/serveis/${ind.pathCa}`,
+        en: `/en/services/${ind.pathEn}`,
+      };
+
+      // From EN path
+      const enKey = `/services/${ind.pathEn}`;
+      baseMapping[enKey] = {
+        es: `/es/servicios/${ind.pathEs}`,
+        ca: `/ca/serveis/${ind.pathCa}`,
+        en: `/en/services/${ind.pathEn}`,
       };
     });
 
     // try to find a direct match or fallback to root of language
-    // normalized should just be the path without language prefix
     const normalized = current === '/' ? '/' : `/${current.replace(/^\//, '')}`;
-    const target = baseMapping[normalized]?.[lang] ?? (lang === 'es' ? '/es' : '/ca');
+    const target = baseMapping[normalized]?.[lang] ?? getBase(lang);
     navigate(target);
   };
+
+  const servicesSlug = getServicesSlug(language);
 
   return (
     <header className="fixed w-full top-0 z-[100] bg-[#001F20] shadow-lg">
@@ -145,7 +170,7 @@ export default function Header() {
                       <NavLink
                         to={item.to}
                         onClick={handleCloseMenu}
-                        className={({ isActive }) => `text-base font-medium transition-colors flex items-center ${isActive || location.pathname.includes(language === 'es' ? '/servicios/' : '/serveis/') ? 'text-[#00E8E5]' : 'text-white hover:text-[#00E8E5]'}`}
+                        className={({ isActive }) => `text-base font-medium transition-colors flex items-center ${isActive || location.pathname.includes(`/${servicesSlug}/`) || location.pathname.includes('/services/') ? 'text-[#00E8E5]' : 'text-white hover:text-[#00E8E5]'}`}
                       >
                         {item.label}
                       </NavLink>
@@ -157,11 +182,11 @@ export default function Header() {
                         {industryLinks.map((sub, idx) => (
                           <NavLink
                             key={idx}
-                            to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}/${language === 'es' ? sub.pathEs : sub.pathCa}`}
+                            to={`${base}/${servicesSlug}/${getIndustryPath(sub)}`}
                             onClick={handleCloseMenu}
                             className={({ isActive }) => `block px-4 py-2.5 text-sm transition-colors ${isActive ? 'text-[#00E8E5] bg-[#003A3B]' : 'text-white hover:bg-[#003A3B] hover:text-[#00E8E5]'}`}
                           >
-                            {language === 'es' ? sub.labelEs : sub.labelCa}
+                            {getIndustryLabel(sub)}
                           </NavLink>
                         ))}
                       </div>
@@ -236,6 +261,14 @@ export default function Header() {
                   >
                     Català (CA)
                   </button>
+                  <button
+                    ref={el => itemRefs.current[2] = el}
+                    role="menuitem"
+                    onClick={() => selectLanguage('en')}
+                    className={`w-full text-left px-3 py-2 text-sm ${language === 'en' ? 'text-[#00E8E5]' : 'text-white'} hover:bg-[#002F30] hover:text-[#00E8E5] transition-colors`}
+                  >
+                    English (EN)
+                  </button>
                 </div>
               )}
             </div>
@@ -266,45 +299,46 @@ export default function Header() {
               if (item.id === 'services') {
                 return (
                   <div key={item.id} className="block">
-                     <div className="flex items-center justify-between w-full py-2 px-4 text-white hover:text-[#00E8E5] hover:bg-[#002F30] rounded-lg cursor-pointer max-w-full"
-                          onClick={() => setIsServicesMobileOpen(!isServicesMobileOpen)}>
-                         <span className="font-medium text-base">{item.label}</span>
-                         <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMobileOpen ? 'rotate-180' : ''}`} />
-                     </div>
-                     {isServicesMobileOpen && (
-                         <div className="ml-4 space-y-2 mt-2 border-l border-gray-700 pl-2">
-                             <NavLink
-                                to={item.to}
-                                onClick={handleCloseMenu}
-                                className={({ isActive }) => `block py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-gray-300 hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
-                             >
-                                 {language === 'es' ? 'Todos los servicios' : 'Tots els serveis'}
-                             </NavLink>
-                             {industryLinks.map((sub, idx) => (
-                                <NavLink
-                                  key={idx}
-                                  to={`${base}/${language === 'es' ? 'servicios' : 'serveis'}/${language === 'es' ? sub.pathEs : sub.pathCa}`}
-                                  onClick={handleCloseMenu}
-                                  className={({ isActive }) => `block py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-gray-300 hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
-                                >
-                                  {language === 'es' ? sub.labelEs : sub.labelCa}
-                                </NavLink>
-                              ))}
-                         </div>
-                     )}
+                    <div className="flex items-center justify-between w-full py-2 px-4 text-white hover:text-[#00E8E5] hover:bg-[#002F30] rounded-lg cursor-pointer max-w-full"
+                      onClick={() => setIsServicesMobileOpen(!isServicesMobileOpen)}>
+                      <span className="font-medium text-base">{item.label}</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMobileOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                    {isServicesMobileOpen && (
+                      <div className="ml-4 space-y-2 mt-2 border-l border-gray-700 pl-2">
+                        <NavLink
+                          to={item.to}
+                          onClick={handleCloseMenu}
+                          className={({ isActive }) => `block py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-gray-300 hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
+                        >
+                          {language === 'es' ? 'Todos los servicios' : language === 'ca' ? 'Tots els serveis' : 'All services'}
+                        </NavLink>
+                        {industryLinks.map((sub, idx) => (
+                          <NavLink
+                            key={idx}
+                            to={`${base}/${servicesSlug}/${getIndustryPath(sub)}`}
+                            onClick={handleCloseMenu}
+                            className={({ isActive }) => `block py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-gray-300 hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
+                          >
+                            {getIndustryLabel(sub)}
+                          </NavLink>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               }
               return (
-              <NavLink
-                key={item.id}
-                to={item.to}
-                onClick={handleCloseMenu}
-                className={({ isActive }) => `block w-full text-left py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-white hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
-              >
-                {item.label}
-              </NavLink>
-            )})}
+                <NavLink
+                  key={item.id}
+                  to={item.to}
+                  onClick={handleCloseMenu}
+                  className={({ isActive }) => `block w-full text-left py-2 px-4 rounded-lg transition-colors ${isActive ? 'text-[#00E8E5] bg-[#002F30]' : 'text-white hover:text-[#00E8E5] hover:bg-[#002F30]'}`}
+                >
+                  {item.label}
+                </NavLink>
+              )
+            })}
 
             <div className="relative" ref={mobileLangRef} onKeyDown={(e) => {
               const ev = e as React.KeyboardEvent<HTMLDivElement>;
@@ -339,7 +373,7 @@ export default function Header() {
                 aria-expanded={isLangOpen}
               >
                 <Globe className="h-4 w-4" />
-                <span className="text-sm font-medium">{language === 'es' ? 'ES' : 'CA'}</span>
+                <span className="text-sm font-medium">{language.toUpperCase()}</span>
               </button>
 
               {isLangOpen && (
@@ -359,6 +393,14 @@ export default function Header() {
                     className={`block w-full text-left py-2 px-4 text-sm ${language === 'ca' ? 'text-[#00E8E5]' : 'text-white'} hover:bg-[#002F30] hover:text-[#00E8E5]`}
                   >
                     Català
+                  </button>
+                  <button
+                    ref={el => itemRefs.current[2] = el}
+                    role="menuitem"
+                    onClick={() => selectLanguage('en')}
+                    className={`block w-full text-left py-2 px-4 text-sm ${language === 'en' ? 'text-[#00E8E5]' : 'text-white'} hover:bg-[#002F30] hover:text-[#00E8E5]`}
+                  >
+                    English
                   </button>
                 </div>
               )}

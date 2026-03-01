@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 
 export default function Home() {
   const { t, language } = useLanguage();
-  const base = language === 'es' ? '/es' : '/ca';
-  const contactPath = `${base}/${language === 'es' ? 'contacto' : 'contacte'}`;
+  const base = language === 'es' ? '/es' : language === 'ca' ? '/ca' : '/en';
+  const contactSlug = language === 'es' ? 'contacto' : language === 'ca' ? 'contacte' : 'contact';
+  const contactPath = `${base}/${contactSlug}`;
 
   const features = [
     {
