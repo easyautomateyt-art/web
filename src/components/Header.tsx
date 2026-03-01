@@ -1,7 +1,15 @@
 import { Menu, X, Globe, ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+
+const INDUSTRY_LINKS = [
+  { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', labelEn: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants', pathEn: 'restaurants' },
+  { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', labelEn: 'Hair Salons', pathEs: 'peluquerias', pathCa: 'perruqueries', pathEn: 'hair-salons' },
+  { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', labelEn: 'Beauty Centres', pathEs: 'estetica', pathCa: 'estetica', pathEn: 'beauty-centres' },
+  { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', labelEn: 'Butcher Shops', pathEs: 'carnicerias', pathCa: 'carnisseries', pathEn: 'butcher-shops' },
+  { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', labelEn: 'Bakeries', pathEs: 'panaderias', pathCa: 'forns', pathEn: 'bakeries' },
+];
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,11 +42,9 @@ export default function Header() {
 
   useEffect(() => {
     if (isLangOpen) {
-      // trigger enter animation
       setAnimateIn(false);
       requestAnimationFrame(() => setAnimateIn(true));
-      // focus initial option
-      const idx = langOptions.indexOf(language as any);
+      const idx = langOptions.indexOf(language as (typeof langOptions)[number]);
       setFocusIndex(idx >= 0 ? idx : 0);
       setTimeout(() => itemRefs.current[idx >= 0 ? idx : 0]?.focus(), 0);
     } else {
@@ -57,41 +63,29 @@ export default function Header() {
   const getBase = (lang: string) => lang === 'es' ? '/es' : lang === 'ca' ? '/ca' : '/en';
   const getServicesSlug = (lang: string) => lang === 'es' ? 'servicios' : lang === 'ca' ? 'serveis' : 'services';
   const getContactSlug = (lang: string) => lang === 'es' ? 'contacto' : lang === 'ca' ? 'contacte' : 'contact';
-  const getAboutSlug = () => 'sobre'; // same for es/ca; en uses 'about'
 
   const base = getBase(language);
-  const navItems = [
+  const navItems = useMemo(() => [
     { id: 'home', label: t.nav.home, to: `${base}` },
     { id: 'services', label: t.nav.services, to: `${base}/${getServicesSlug(language)}` },
     { id: 'about', label: t.nav.about, to: language === 'en' ? `${base}/about` : `${base}/sobre` },
     { id: 'contact', label: t.nav.contact, to: `${base}/${getContactSlug(language)}` },
-  ];
+  ], [base, language, t.nav.home, t.nav.services, t.nav.about, t.nav.contact]);
 
-  const industryLinks = [
-    { id: 'restaurants', labelEs: 'Restaurantes', labelCa: 'Restaurants', labelEn: 'Restaurants', pathEs: 'restaurantes', pathCa: 'restaurants', pathEn: 'restaurants' },
-    { id: 'hairSalons', labelEs: 'Peluquerías', labelCa: 'Perruqueries', labelEn: 'Hair Salons', pathEs: 'peluquerias', pathCa: 'perruqueries', pathEn: 'hair-salons' },
-    { id: 'beautyCenters', labelEs: 'Estética', labelCa: 'Estètica', labelEn: 'Beauty Centres', pathEs: 'estetica', pathCa: 'estetica', pathEn: 'beauty-centres' },
-    { id: 'butcherShops', labelEs: 'Carnicerías', labelCa: 'Carnisseries', labelEn: 'Butcher Shops', pathEs: 'carnicerias', pathCa: 'carnisseries', pathEn: 'butcher-shops' },
-    { id: 'bakeries', labelEs: 'Panaderías', labelCa: 'Forns de Pa', labelEn: 'Bakeries', pathEs: 'panaderias', pathCa: 'forns', pathEn: 'bakeries' },
-  ];
-
-  const getIndustryLabel = (sub: typeof industryLinks[0]) =>
+  const getIndustryLabel = (sub: typeof INDUSTRY_LINKS[0]) =>
     language === 'es' ? sub.labelEs : language === 'ca' ? sub.labelCa : sub.labelEn;
 
-  const getIndustryPath = (sub: typeof industryLinks[0]) =>
+  const getIndustryPath = (sub: typeof INDUSTRY_LINKS[0]) =>
     language === 'es' ? sub.pathEs : language === 'ca' ? sub.pathCa : sub.pathEn;
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  // when switching language, navigate to equivalent localized path
   const selectLanguage = (lang: 'es' | 'ca' | 'en') => {
     setLanguage(lang);
     setIsLangOpen(false);
-    // compute target path mapping
     const current = location.pathname.replace(/^\/(es|ca|en)/, '') || '/';
 
-    // Build dynamic mapping including generic pages and all industry pages
     const baseMapping: Record<string, Record<'es' | 'ca' | 'en', string>> = {
       '/': { es: '/es', ca: '/ca', en: '/en' },
       '/services': { es: '/es/servicios', ca: '/ca/serveis', en: '/en/services' },
@@ -114,25 +108,19 @@ export default function Header() {
       '/privacy-policy': { es: '/es/politica-privacidad', ca: '/ca/politica-privacitat', en: '/en/privacy-policy' },
     };
 
-    // Add industry paths to mapping
-    industryLinks.forEach(ind => {
-      // From ES path
+    INDUSTRY_LINKS.forEach(ind => {
       const esKey = `/servicios/${ind.pathEs}`;
       baseMapping[esKey] = {
         es: `/es/servicios/${ind.pathEs}`,
         ca: `/ca/serveis/${ind.pathCa}`,
         en: `/en/services/${ind.pathEn}`,
       };
-
-      // From CA path
       const caKey = `/serveis/${ind.pathCa}`;
       baseMapping[caKey] = {
         es: `/es/servicios/${ind.pathEs}`,
         ca: `/ca/serveis/${ind.pathCa}`,
         en: `/en/services/${ind.pathEn}`,
       };
-
-      // From EN path
       const enKey = `/services/${ind.pathEn}`;
       baseMapping[enKey] = {
         es: `/es/servicios/${ind.pathEs}`,
@@ -141,7 +129,6 @@ export default function Header() {
       };
     });
 
-    // try to find a direct match or fallback to root of language
     const normalized = current === '/' ? '/' : `/${current.replace(/^\//, '')}`;
     const target = baseMapping[normalized]?.[lang] ?? getBase(lang);
     navigate(target);
@@ -176,10 +163,9 @@ export default function Header() {
                       </NavLink>
                       <ChevronDown className="ml-1 h-4 w-4 text-white group-hover:text-[#00E8E5] transition-colors" />
                     </div>
-                    {/* Dropdown Content */}
                     <div className="absolute left-0 top-full pt-2 w-64 hidden group-hover:block z-[110]">
                       <div className="bg-[#002A2B] border border-gray-600 rounded-lg shadow-2xl py-2">
-                        {industryLinks.map((sub, idx) => (
+                        {INDUSTRY_LINKS.map((sub, idx) => (
                           <NavLink
                             key={idx}
                             to={`${base}/${servicesSlug}/${getIndustryPath(sub)}`}
@@ -284,8 +270,10 @@ export default function Header() {
           </nav>
 
           <button
-            className="md:hidden text-white"
+            className="md:hidden text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00E8E5]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -313,7 +301,7 @@ export default function Header() {
                         >
                           {language === 'es' ? 'Todos los servicios' : language === 'ca' ? 'Tots els serveis' : 'All services'}
                         </NavLink>
-                        {industryLinks.map((sub, idx) => (
+                        {INDUSTRY_LINKS.map((sub, idx) => (
                           <NavLink
                             key={idx}
                             to={`${base}/${servicesSlug}/${getIndustryPath(sub)}`}

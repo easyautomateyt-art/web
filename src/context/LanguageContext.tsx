@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { translations } from '../i18n/translations';
 import { useLocation } from 'react-router-dom';
 
@@ -20,15 +20,14 @@ function detectLanguageFromPath(pathname: string): Language {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>(() => {
-    // Detect language from URL on initial load
     return detectLanguageFromPath(window.location.pathname);
   });
 
-  const value = {
+  const value = useMemo(() => ({
     language,
     setLanguage,
     t: translations[language],
-  };
+  }), [language]);
 
   return (
     <LanguageContext.Provider value={value}>

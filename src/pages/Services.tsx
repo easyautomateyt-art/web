@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Calendar, Package, FileText, Database, CheckCircle, Clock, CreditCard } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
@@ -8,7 +9,7 @@ export default function Services() {
   const contactSlug = language === 'es' ? 'contacto' : language === 'ca' ? 'contacte' : 'contact';
   const contactPath = `${base}/${contactSlug}`;
 
-  const services = [
+  const services = useMemo(() => [
     {
       icon: Calendar,
       title: t.services.reservations.title,
@@ -100,7 +101,7 @@ export default function Services() {
       benefit: t.services.accounting.benefit,
       color: 'from-purple-500 to-pink-600',
     },
-  ];
+  ], [t]);
 
   return (
     <div className="pt-16">
