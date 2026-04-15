@@ -1,4 +1,4 @@
-import { Mail, Send, Loader2 } from 'lucide-react';
+import { Mail, Send, Loader2, MessageSquare, Clock, Shield } from 'lucide-react';
 import { useState, FormEvent } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
@@ -15,7 +15,6 @@ export default function Contact() {
   const [acceptError, setAcceptError] = useState('');
   const [triedSubmit, setTriedSubmit] = useState(false);
 
-  // Compute the correct privacy policy route
   const base = language === 'es' ? '/es' : language === 'ca' ? '/ca' : '/en';
   const privacySlug = language === 'es' ? 'politica-privacidad' : language === 'ca' ? 'politica-privacitat' : 'privacy-policy';
   const privacyPath = `${base}/${privacySlug}`;
@@ -23,7 +22,6 @@ export default function Contact() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setTriedSubmit(true);
-    // validate privacy acceptance
     if (!acceptedPrivacy) {
       setAcceptError(t.contact.form.acceptError);
       return;
@@ -47,10 +45,7 @@ export default function Contact() {
 
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
-
-      setTimeout(() => {
-        setStatus('idle');
-      }, 5000);
+      setTimeout(() => setStatus('idle'), 5000);
     } catch (err) {
       console.error('Contact send error', err);
       setStatus('error');
@@ -58,36 +53,57 @@ export default function Contact() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="pt-16">
-      <section className="bg-gradient-to-br from-[#001F20] to-[#003840] text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              {t.contact.title}
-            </h1>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-              {t.contact.subtitle}
-            </p>
+    <div className="pt-16 overflow-x-hidden">
+
+      {/* ════════════════════════════════════════════════════════
+          HERO
+      ════════════════════════════════════════════════════════ */}
+      <section className="relative bg-[#001F20] py-24 md:py-32 overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-[#00E8E5] opacity-[0.06] blur-[120px] pointer-events-none" />
+
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          style={{
+            backgroundImage: `linear-gradient(#00E8E5 1px, transparent 1px), linear-gradient(90deg, #00E8E5 1px, transparent 1px)`,
+            backgroundSize: '60px 60px',
+          }}
+        />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 bg-[#00E8E5]/10 border border-[#00E8E5]/30 rounded-full px-4 py-1.5 mb-8">
+            <span className="w-2 h-2 rounded-full bg-[#00E8E5] animate-pulse" />
+            <span className="text-[#00E8E5] text-sm font-medium tracking-wide">{t.contact.badge}</span>
           </div>
+
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.05]">
+            {t.contact.title}
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
+            {t.contact.subtitle}
+          </p>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none" />
       </section>
 
-      <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      {/* ════════════════════════════════════════════════════════
+          FORM + SIDEBAR
+      ════════════════════════════════════════════════════════ */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+            {/* ─── Form ──────────────────────────────────────── */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-xl p-8">
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 shadow-sm">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t.contact.form.name} <span className="text-red-500 ml-1">*</span>
+                    <label htmlFor="name" className="block text-sm font-semibold text-[#001F20] mb-2">
+                      {t.contact.form.name} <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -97,13 +113,13 @@ export default function Contact() {
                       onChange={handleChange}
                       required
                       aria-required="true"
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/50 transition-colors"
+                      className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[#001F20] placeholder-gray-400 focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/20 focus:bg-white transition-all"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t.contact.form.email} <span className="text-red-500 ml-1">*</span>
+                    <label htmlFor="email" className="block text-sm font-semibold text-[#001F20] mb-2">
+                      {t.contact.form.email} <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="email"
@@ -113,15 +129,13 @@ export default function Contact() {
                       onChange={handleChange}
                       required
                       aria-required="true"
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/50 transition-colors"
+                      className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[#001F20] placeholder-gray-400 focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/20 focus:bg-white transition-all"
                     />
                   </div>
 
-
-
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      {t.contact.form.message} <span className="text-red-500 ml-1">*</span>
+                    <label htmlFor="message" className="block text-sm font-semibold text-[#001F20] mb-2">
+                      {t.contact.form.message} <span className="text-red-400">*</span>
                     </label>
                     <textarea
                       id="message"
@@ -131,11 +145,12 @@ export default function Contact() {
                       required
                       aria-required="true"
                       rows={6}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/50 transition-colors resize-none"
+                      className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[#001F20] placeholder-gray-400 focus:outline-none focus:border-[#00E8E5] focus:ring-2 focus:ring-[#00E8E5]/20 focus:bg-white transition-all resize-none"
                     />
                   </div>
 
-                  <div className="flex items-start">
+                  {/* Privacy checkbox */}
+                  <div className="flex items-start gap-3">
                     <input
                       id="accept"
                       name="accept"
@@ -146,15 +161,15 @@ export default function Contact() {
                         setAcceptedPrivacy(checked);
                         if (checked) setAcceptError('');
                       }}
-                      className="h-4 w-4 mt-1 mr-3"
+                      className="h-4 w-4 mt-1 rounded border-gray-300 text-[#00E8E5] focus:ring-[#00E8E5]"
                     />
-                    <label htmlFor="accept" className="text-sm text-gray-700">
+                    <label htmlFor="accept" className="text-sm text-gray-500">
                       {t.contact.form.acceptPrefix}{' '}
                       <Link
                         to={privacyPath}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#00E8E5] underline hover:text-[#00d4d1]"
+                        className="text-[#00E8E5] underline hover:text-[#00d4d1] font-medium"
                       >
                         {t.contact.form.acceptLink}
                       </Link>
@@ -162,37 +177,39 @@ export default function Contact() {
                   </div>
 
                   {(acceptError || (triedSubmit && !acceptedPrivacy)) && (
-                    <div className="text-sm text-red-600">{acceptError || t.contact.form.acceptError}</div>
+                    <div className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+                      {acceptError || t.contact.form.acceptError}
+                    </div>
                   )}
 
                   <button
                     type="submit"
                     disabled={status === 'sending' || !acceptedPrivacy}
                     aria-disabled={status === 'sending' || !acceptedPrivacy}
-                    className="w-full bg-[#00E8E5] text-[#001F20] px-6 py-4 rounded-lg font-semibold text-lg hover:bg-[#00d4d1] transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+                    className="w-full group bg-[#00E8E5] text-[#001F20] px-6 py-4 rounded-xl font-bold text-lg hover:bg-[#001F20] hover:text-[#00E8E5] transition-all duration-200 shadow-[0_0_30px_rgba(0,232,229,0.2)] hover:shadow-[0_0_40px_rgba(0,232,229,0.4)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#00E8E5] disabled:hover:text-[#001F20] disabled:shadow-none flex items-center justify-center gap-2"
                     title={!acceptedPrivacy ? t.contact.form.acceptError : undefined}
                   >
                     {status === 'sending' ? (
                       <>
-                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                        <Loader2 className="animate-spin h-5 w-5" />
                         {t.contact.form.sending}
                       </>
                     ) : (
                       <>
-                        <Send className="h-5 w-5 mr-2" />
+                        <Send className="h-5 w-5" />
                         {t.contact.form.send}
                       </>
                     )}
                   </button>
 
                   {status === 'success' && (
-                    <div className="bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-lg">
+                    <div className="bg-emerald-50 border border-emerald-300 text-emerald-700 px-5 py-4 rounded-xl text-sm font-medium">
                       {t.contact.form.success}
                     </div>
                   )}
 
                   {status === 'error' && (
-                    <div className="bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+                    <div className="bg-red-50 border border-red-300 text-red-700 px-5 py-4 rounded-xl text-sm font-medium">
                       {t.contact.form.error}
                     </div>
                   )}
@@ -200,31 +217,54 @@ export default function Contact() {
               </div>
             </div>
 
+            {/* ─── Sidebar ───────────────────────────────────── */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-[#001F20] to-[#003840] p-8 rounded-2xl text-white">
-                <h3 className="text-2xl font-bold mb-6">{t.contact.info.title}</h3>
 
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="bg-[#00E8E5] p-3 rounded-lg mr-4">
-                      <Mail className="h-6 w-6 text-[#001F20]" />
+              {/* Contact info card */}
+              <div className="bg-[#001F20] rounded-3xl p-8 overflow-hidden relative">
+                <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-[#00E8E5] opacity-[0.06] blur-[40px]" />
+
+                <div className="relative">
+                  <h3 className="text-lg font-bold text-white mb-6">{t.contact.info.title}</h3>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#00E8E5]/10 border border-[#00E8E5]/30 flex items-center justify-center flex-shrink-0">
+                      <Mail className="h-5 w-5 text-[#00E8E5]" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">{t.contact.info.email}</h4>
+                      <p className="text-gray-400 text-xs uppercase tracking-widest font-semibold mb-1">{t.contact.info.email}</p>
                       <a
                         href={`mailto:${t.contact.info.emailValue}`}
-                        className="text-[#00E8E5] hover:underline"
+                        className="text-[#00E8E5] hover:text-white transition-colors font-medium"
                       >
                         {t.contact.info.emailValue}
                       </a>
                     </div>
                   </div>
-
-                  {/* Horario de atención removido por solicitud del usuario */}
                 </div>
               </div>
 
-              {/* CTA removed per request: 'Únete a cientos...' and 'Acceder' */}
+              {/* Quick promises */}
+              <div className="space-y-4">
+                {[
+                  { icon: MessageSquare, text: t.contact.promise1, accent: '#00E8E5' },
+                  { icon: Clock, text: t.contact.promise2, accent: '#6366F1' },
+                  { icon: Shield, text: t.contact.promise3, accent: '#10B981' },
+                ].map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={i} className="flex items-center gap-4 bg-white border border-gray-200 rounded-2xl p-4">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: `${item.accent}12`, border: `1px solid ${item.accent}30` }}
+                      >
+                        <Icon className="h-5 w-5" style={{ color: item.accent }} />
+                      </div>
+                      <p className="text-[#001F20] font-medium text-sm">{item.text}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
