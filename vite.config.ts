@@ -8,6 +8,11 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  ssr: {
+    // react-helmet-async ships CommonJS; bundle it so named imports work in the
+    // prerender step (Node ESM cannot import its named exports otherwise).
+    noExternal: ['react-helmet-async'],
+  },
   // During development, forward API requests to the local backend server
   server: {
     proxy: {

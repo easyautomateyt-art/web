@@ -12,16 +12,26 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-function detectLanguageFromPath(pathname: string): Language {
+export function detectLanguageFromPath(pathname: string): Language {
   if (pathname.startsWith('/en')) return 'en';
   if (pathname.startsWith('/ca')) return 'ca';
   return 'es';
 }
 
+/**
+ * Provider must live INSIDE the router so it can derive the language from the
+ * current location. This keeps it SSR/prerender-safe (no direct `window` access)
+ * and ensures the initial render already has the correct language.
+ */
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() => {
-    return detectLanguageFromPath(window.location.pathname);
-  });
+  const location = useLocation();
+  const [language, setLanguage] = useState<Language>(() => detectLanguageFromPath(location.pathname));
+
+  // Keep language in sync with URL changes (e.g. client-side navigation).
+  useEffect(() => {
+    const pathLang = detectLanguageFromPath(location.pathname);
+    setLanguage((prev) => (prev !== pathLang ? pathLang : prev));
+  }, [location.pathname]);
 
   const value = useMemo(() => ({
     language,
@@ -36,21 +46,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Hook that also syncs language with the current URL path */
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
-
-  const location = useLocation();
-
-  useEffect(() => {
-    const pathLang = detectLanguageFromPath(location.pathname);
-    if (pathLang !== context.language) {
-      context.setLanguage(pathLang);
-    }
-  }, [location.pathname]);
-
   return context;
 }

@@ -2,6 +2,7 @@ import { Mail, Send, Loader2, MessageSquare, Clock, Shield } from 'lucide-react'
 import { useState, FormEvent } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
+import Seo from '../components/Seo';
 
 export default function Contact() {
   const { t, language } = useLanguage();
@@ -57,7 +58,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="pt-16 overflow-x-hidden">
+    <div className="pt-16 overflow-x-hidden motion-safe:animate-fade-in">
+      <Seo pageKey="contact" />
 
       {/* ════════════════════════════════════════════════════════
           HERO

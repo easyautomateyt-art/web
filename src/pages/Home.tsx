@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
+import Seo from '../components/Seo';
+import Reveal from '../components/Reveal';
 
 /* ─── Static data (language-agnostic) ─────────────────────────────────── */
 
@@ -82,7 +84,8 @@ export default function Home() {
   })), [t]);
 
   return (
-    <div className="pt-16 overflow-x-hidden">
+    <div className="pt-16 overflow-x-hidden motion-safe:animate-fade-in">
+      <Seo pageKey="home" />
 
       {/* ════════════════════════════════════════════════════════
           HERO — gradient mesh + floating stats cards
@@ -109,26 +112,26 @@ export default function Home() {
             {/* Left — copy */}
             <div>
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-[#00E8E5]/10 border border-[#00E8E5]/30 rounded-full px-4 py-1.5 mb-8">
+              <Reveal delay={0} className="inline-flex items-center gap-2 bg-[#00E8E5]/10 border border-[#00E8E5]/30 rounded-full px-4 py-1.5 mb-8">
                 <span className="w-2 h-2 rounded-full bg-[#00E8E5] animate-pulse" />
                 <span className="text-[#00E8E5] text-sm font-medium tracking-wide">{t.home.hero.badge}</span>
-              </div>
+              </Reveal>
 
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6">
+              <Reveal as="h1" delay={100} className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6">
                 {t.home.hero.titleLine1}<br />
                 <span className="relative">
                   <span className="text-[#00E8E5]">{t.home.hero.titleHighlight}</span>
                   <span className="absolute -bottom-1 left-0 w-full h-px bg-gradient-to-r from-[#00E8E5] to-transparent opacity-60" />
                 </span>
                 <br />{t.home.hero.titleLine2}
-              </h1>
+              </Reveal>
 
-              <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 max-w-lg">
+              <Reveal as="p" delay={180} className="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 max-w-lg">
                 {t.home.hero.description}
                 <span className="text-white font-medium"> {t.home.hero.descriptionBold}</span> {t.home.hero.descriptionEnd}
-              </p>
+              </Reveal>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <Reveal delay={260} className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to={contactPath}
                   className="group inline-flex items-center justify-center gap-2 bg-[#00E8E5] text-[#001F20] px-8 py-4 rounded-xl font-bold text-lg hover:bg-white transition-all duration-200 shadow-[0_0_30px_rgba(0,232,229,0.3)] hover:shadow-[0_0_40px_rgba(0,232,229,0.5)]"
@@ -142,14 +145,14 @@ export default function Home() {
                 >
                   {t.home.hero.ctaModules}
                 </Link>
-              </div>
+              </Reveal>
 
             </div>
 
             {/* Right — floating dashboard mockup */}
             <div className="relative hidden lg:block">
               {/* Main card */}
-              <div className="relative bg-gradient-to-br from-[#002A2B] to-[#001F20] border border-white/10 rounded-2xl p-6 shadow-2xl">
+              <div className="relative bg-gradient-to-br from-[#002A2B] to-[#001F20] border border-white/10 rounded-2xl p-6 shadow-2xl motion-safe:animate-float">
                 {/* Top bar */}
                 <div className="flex items-center gap-2 mb-6">
                   <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -197,7 +200,7 @@ export default function Home() {
               </div>
 
               {/* Floating notification card */}
-              <div className="absolute -top-5 -right-5 bg-[#002A2B] border border-[#00E8E5]/30 rounded-xl p-3.5 shadow-xl flex items-center gap-3 w-56">
+              <div className="absolute -top-5 -right-5 bg-[#002A2B] border border-[#00E8E5]/30 rounded-xl p-3.5 shadow-xl flex items-center gap-3 w-56 motion-safe:animate-float-slow">
                 <div className="w-9 h-9 rounded-full bg-[#00E8E5]/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-lg">📲</span>
                 </div>
@@ -208,7 +211,7 @@ export default function Home() {
               </div>
 
               {/* Floating payment card */}
-              <div className="absolute -bottom-5 -left-5 bg-[#002A2B] border border-emerald-500/30 rounded-xl p-3.5 shadow-xl flex items-center gap-3 w-52">
+              <div className="absolute -bottom-5 -left-5 bg-[#002A2B] border border-emerald-500/30 rounded-xl p-3.5 shadow-xl flex items-center gap-3 w-52 motion-safe:animate-float">
                 <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-lg">💳</span>
                 </div>
@@ -230,7 +233,7 @@ export default function Home() {
       ════════════════════════════════════════════════════════ */}
       <section className="py-24 bg-white" ref={featuresRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <Reveal className="text-center mb-16">
             <p className="text-[#00E8E5] text-sm font-semibold uppercase tracking-widest mb-3">{t.home.features.label}</p>
             <h2 className="text-4xl md:text-5xl font-bold text-[#001F20] mb-4">
               {t.home.features.title}
@@ -238,15 +241,15 @@ export default function Home() {
             <p className="text-xl text-gray-500 max-w-2xl mx-auto">
               {t.home.features.subtitle}
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
+                <Reveal key={index} delay={(index % 3) * 80}>
                 <div
-                  key={index}
-                  className={`group relative bg-gradient-to-br ${feature.bg} border border-white rounded-2xl p-7 hover:border-opacity-50 hover:shadow-xl transition-all duration-300 overflow-hidden`}
+                  className={`group relative h-full bg-gradient-to-br ${feature.bg} border border-white rounded-2xl p-7 hover:border-opacity-50 hover:shadow-xl transition-all duration-300 overflow-hidden`}
                   style={{ '--accent': feature.accent } as React.CSSProperties}
                 >
                   {/* Top accent line */}
@@ -276,6 +279,7 @@ export default function Home() {
                     <ChevronRight className="h-4 w-4" style={{ color: feature.accent }} />
                   </div>
                 </div>
+                </Reveal>
               );
             })}
           </div>
@@ -293,7 +297,7 @@ export default function Home() {
           }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <Reveal className="text-center mb-16">
             <p className="text-[#00E8E5] text-sm font-semibold uppercase tracking-widest mb-3">{t.home.process.label}</p>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
               {t.home.process.title}
@@ -301,7 +305,7 @@ export default function Home() {
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               {t.home.process.subtitle}
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
             {/* Connector line */}
@@ -310,7 +314,7 @@ export default function Home() {
             {steps.map((step, i) => {
               const Icon = step.icon;
               return (
-                <div key={i} className="relative flex flex-col items-center text-center">
+                <Reveal key={i} delay={i * 120} className="relative flex flex-col items-center text-center">
                   <div className="relative mb-6">
                     <div className="w-20 h-20 rounded-2xl bg-[#00E8E5]/10 border border-[#00E8E5]/30 flex items-center justify-center">
                       <Icon className="h-9 w-9 text-[#00E8E5]" />
@@ -321,7 +325,7 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
                   <p className="text-gray-400 leading-relaxed text-sm">{step.desc}</p>
-                </div>
+                </Reveal>
               );
             })}
           </div>
@@ -344,7 +348,7 @@ export default function Home() {
       ════════════════════════════════════════════════════════ */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <Reveal className="text-center mb-14">
             <p className="text-[#00E8E5] text-sm font-semibold uppercase tracking-widest mb-3">{t.home.industries.label}</p>
             <h2 className="text-4xl md:text-5xl font-bold text-[#001F20] mb-4">
               {t.home.industries.title}
@@ -352,19 +356,20 @@ export default function Home() {
             <p className="text-xl text-gray-500 max-w-2xl mx-auto">
               {t.home.industries.subtitle}
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {industries.map((ind, i) => (
-              <Link
-                key={i}
-                to={`${base}/${servicesSlug}/${ind.path}`}
-                className="group bg-white border border-gray-200 rounded-2xl p-6 text-center hover:border-[#00E8E5] hover:shadow-lg transition-all duration-300"
-              >
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200 inline-block">{ind.emoji}</div>
-                <h3 className="font-bold text-[#001F20] mb-1 text-sm">{ind.name}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">{ind.desc}</p>
-              </Link>
+              <Reveal key={i} delay={i * 70} className="h-full">
+                <Link
+                  to={`${base}/${servicesSlug}/${ind.path}`}
+                  className="group flex flex-col h-full bg-white border border-gray-200 rounded-2xl p-6 text-center hover:border-[#00E8E5] hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200 inline-block">{ind.emoji}</div>
+                  <h3 className="font-bold text-[#001F20] mb-1 text-sm">{ind.name}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed">{ind.desc}</p>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -378,7 +383,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
 
             {/* Left — visual */}
-            <div className="relative order-2 lg:order-1">
+            <Reveal className="relative order-2 lg:order-1">
               <div className="bg-gradient-to-br from-[#001F20] to-[#003840] rounded-3xl p-8 shadow-2xl">
                 <p className="text-[#00E8E5] text-xs font-semibold uppercase tracking-widest mb-6">{t.home.benefits.panelTitle}</p>
 
@@ -386,8 +391,8 @@ export default function Home() {
                 <div className="mb-6">
                   <div className="flex items-end justify-between gap-1 h-24">
                     {[40, 65, 45, 80, 55, 90, 70, 95, 60, 85, 75, 100].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-t-sm transition-all"
-                        style={{ height: `${h}%`, background: i === 11 ? '#00E8E5' : `rgba(0,232,229,${0.2 + h / 300})` }}
+                      <div key={i} className="flex-1 rounded-t-sm transition-all origin-bottom motion-safe:animate-grow-bar"
+                        style={{ height: `${h}%`, background: i === 11 ? '#00E8E5' : `rgba(0,232,229,${0.2 + h / 300})`, animationDelay: `${i * 60}ms` }}
                       />
                     ))}
                   </div>
@@ -414,21 +419,23 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            </div>
+            </Reveal>
 
             {/* Right — benefits list */}
             <div className="order-1 lg:order-2">
-              <p className="text-[#00E8E5] text-sm font-semibold uppercase tracking-widest mb-3">{t.home.benefits.label}</p>
-              <h2 className="text-4xl md:text-5xl font-bold text-[#001F20] mb-6">
-                {t.home.benefits.title}
-              </h2>
-              <p className="text-xl text-gray-500 mb-10">{t.home.benefits.subtitle}</p>
+              <Reveal>
+                <p className="text-[#00E8E5] text-sm font-semibold uppercase tracking-widest mb-3">{t.home.benefits.label}</p>
+                <h2 className="text-4xl md:text-5xl font-bold text-[#001F20] mb-6">
+                  {t.home.benefits.title}
+                </h2>
+                <p className="text-xl text-gray-500 mb-10">{t.home.benefits.subtitle}</p>
+              </Reveal>
 
               <div className="space-y-6">
                 {benefits.map((benefit, index) => {
                   const Icon = benefit.icon;
                   return (
-                    <div key={index} className="flex gap-5 items-start group">
+                    <Reveal key={index} delay={index * 90} className="flex gap-5 items-start group">
                       <div className="w-12 h-12 rounded-xl bg-[#001F20] border border-[#00E8E5]/30 flex items-center justify-center flex-shrink-0 group-hover:border-[#00E8E5] group-hover:bg-[#00E8E5]/10 transition-all duration-300">
                         <Icon className="h-5 w-5 text-[#00E8E5]" />
                       </div>
@@ -436,7 +443,7 @@ export default function Home() {
                         <h3 className="text-lg font-bold text-[#001F20] mb-1">{benefit.title}</h3>
                         <p className="text-gray-500 leading-relaxed text-sm">{benefit.description}</p>
                       </div>
-                    </div>
+                    </Reveal>
                   );
                 })}
               </div>
@@ -452,6 +459,7 @@ export default function Home() {
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#00E8E5] opacity-[0.06] blur-[120px] rounded-full pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <Reveal>
           <p className="text-[#00E8E5] text-sm font-semibold uppercase tracking-widest mb-4">{t.home.cta.label}</p>
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             {t.home.cta.title}
@@ -471,6 +479,7 @@ export default function Home() {
           </div>
 
           <p className="text-gray-600 text-sm mt-6">{t.common.noCommitment}</p>
+          </Reveal>
         </div>
       </section>
     </div>

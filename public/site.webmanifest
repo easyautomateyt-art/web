@@ -1,0 +1,17 @@
+{
+  "name": "OneReserve",
+  "short_name": "OneReserve",
+  "description": "Software de gestión todo-en-uno para tu negocio: reservas, pedidos, facturación, stock, fichajes y contabilidad.",
+  "lang": "es",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#001F20",
+  "theme_color": "#001F20",
+  "icons": [
+    {
+      "src": "/OneReserve_Logo_web-removebg-preview.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

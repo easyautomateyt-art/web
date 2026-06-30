@@ -1,10 +1,12 @@
 import { useLanguage } from '../context/LanguageContext';
+import Seo from '../components/Seo';
 
 export default function AvisoLegal() {
   const { language } = useLanguage();
 
   return (
-    <div className="pt-16">
+    <div className="pt-16 motion-safe:animate-fade-in">
+      <Seo pageKey="legal" />
       <section className="bg-gradient-to-br from-[#001F20] to-[#003840] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">

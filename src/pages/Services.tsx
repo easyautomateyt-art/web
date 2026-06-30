@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
+import Seo from '../components/Seo';
 
 const SERVICE_ACCENTS = [
   { accent: '#00E8E5', bg: 'from-cyan-500/10 to-teal-500/5' },
@@ -110,7 +111,8 @@ export default function Services() {
   ], [t]);
 
   return (
-    <div className="pt-16 overflow-x-hidden">
+    <div className="pt-16 overflow-x-hidden motion-safe:animate-fade-in">
+      <Seo pageKey="services" />
 
       {/* ════════════════════════════════════════════════════════
           HERO

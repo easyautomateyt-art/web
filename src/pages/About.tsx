@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
+import Seo from '../components/Seo';
 
 export default function About() {
   const { t, language } = useLanguage();
@@ -19,7 +20,8 @@ export default function About() {
   ];
 
   return (
-    <div className="pt-16 overflow-x-hidden">
+    <div className="pt-16 overflow-x-hidden motion-safe:animate-fade-in">
+      <Seo pageKey="about" />
 
       {/* ════════════════════════════════════════════════════════
           HERO

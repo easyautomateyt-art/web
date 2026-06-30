@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Link, Navigate } from 'react-router-dom';
+import Seo from '../components/Seo';
 
 type IndustryKey = 'restaurants' | 'hairSalons' | 'beautyCenters' | 'butcherShops' | 'bakeries';
 
@@ -44,7 +45,8 @@ export default function IndustryPage({ type }: IndustryPageProps) {
   const emoji = INDUSTRY_EMOJIS[type] || '🏪';
 
   return (
-    <div className="pt-16 overflow-x-hidden">
+    <div className="pt-16 overflow-x-hidden motion-safe:animate-fade-in">
+      <Seo pageKey={type} />
 
       {/* ════════════════════════════════════════════════════════
           HERO

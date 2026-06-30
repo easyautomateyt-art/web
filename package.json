@@ -8,8 +8,11 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "node -e \"process.env.ROLLUP_SKIP_NODEJS_NATIVE='true'; require('child_process').spawn(process.platform==='win32'? 'cmd':'sh', [process.platform==='win32'?'/c':'-c', 'npm run _vitebuild'], {stdio:'inherit'});\"",
+    "build": "node scripts/build.mjs",
     "_vitebuild": "rimraf dist && vite build",
+    "_ssrbuild": "rimraf dist-server && vite build --ssr src/entry-server.tsx --outDir dist-server",
+    "prerender": "node scripts/prerender.mjs",
+    "og-image": "node scripts/generate-og-image.mjs",
     "start": "node server.mjs",
     "verify-smtp": "node ./scripts/verify-smtp.mjs",
     "lint": "eslint .",
@@ -27,6 +30,7 @@
     "pm2": "^5.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
     "react-router-dom": "^7.9.6",
     "rimraf": "^5.0.1"
   },

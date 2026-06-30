@@ -1,89 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Header from './components/Header';
-import Home from './pages/Home';
-import Services from './pages/Services';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import AvisoLegal from './pages/AvisoLegal';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import Footer from './components/Footer';
-import { LanguageProvider } from './context/LanguageContext';
-import { useEffect } from 'react';
-
-import IndustryPage from './pages/IndustryPage';
-
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [pathname]);
-  return null;
-}
-
-function AppRouter() {
-  return (
-    <Router>
-      <ScrollToTop />
-      <div className="min-h-screen bg-white">
-        <Header />
-        <main>
-          <Routes>
-            {/* Redirect root to default language (es) */}
-            <Route path="/" element={<Home />} />
-            <Route path="/es" element={<Home />} />
-
-            <Route path="/es/servicios" element={<Services />} />
-            <Route path="/es/servicios/restaurantes" element={<IndustryPage type="restaurants" />} />
-            <Route path="/es/servicios/peluquerias" element={<IndustryPage type="hairSalons" />} />
-            <Route path="/es/servicios/estetica" element={<IndustryPage type="beautyCenters" />} />
-            <Route path="/es/servicios/carnicerias" element={<IndustryPage type="butcherShops" />} />
-            <Route path="/es/servicios/panaderias" element={<IndustryPage type="bakeries" />} />
-
-            <Route path="/es/sobre" element={<About />} />
-            <Route path="/es/contacto" element={<Contact />} />
-            <Route path="/es/aviso-legal" element={<AvisoLegal />} />
-            <Route path="/es/politica-privacidad" element={<PrivacyPolicy />} />
-
-            <Route path="/ca" element={<Home />} />
-            <Route path="/ca/serveis" element={<Services />} />
-            <Route path="/ca/serveis/restaurants" element={<IndustryPage type="restaurants" />} />
-            <Route path="/ca/serveis/perruqueries" element={<IndustryPage type="hairSalons" />} />
-            <Route path="/ca/serveis/estetica" element={<IndustryPage type="beautyCenters" />} />
-            <Route path="/ca/serveis/carnisseries" element={<IndustryPage type="butcherShops" />} />
-            <Route path="/ca/serveis/forns" element={<IndustryPage type="bakeries" />} />
-
-            <Route path="/ca/sobre" element={<About />} />
-            <Route path="/ca/contacte" element={<Contact />} />
-            <Route path="/ca/avis-legal" element={<AvisoLegal />} />
-            <Route path="/ca/politica-privacitat" element={<PrivacyPolicy />} />
-
-            {/* English routes */}
-            <Route path="/en" element={<Home />} />
-            <Route path="/en/services" element={<Services />} />
-            <Route path="/en/services/restaurants" element={<IndustryPage type="restaurants" />} />
-            <Route path="/en/services/hair-salons" element={<IndustryPage type="hairSalons" />} />
-            <Route path="/en/services/beauty-centres" element={<IndustryPage type="beautyCenters" />} />
-            <Route path="/en/services/butcher-shops" element={<IndustryPage type="butcherShops" />} />
-            <Route path="/en/services/bakeries" element={<IndustryPage type="bakeries" />} />
-
-            <Route path="/en/about" element={<About />} />
-            <Route path="/en/contact" element={<Contact />} />
-            <Route path="/en/legal-notice" element={<AvisoLegal />} />
-            <Route path="/en/privacy-policy" element={<PrivacyPolicy />} />
-
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
-  );
-}
+import { BrowserRouter } from 'react-router-dom';
+import AppShell from './AppShell';
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AppRouter />
-    </LanguageProvider>
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }

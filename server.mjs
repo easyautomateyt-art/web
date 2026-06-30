@@ -173,11 +173,15 @@ async function startServer() {
   });
 
   app.use(express.static(distPath, {
+    // Disable directory index + trailing-slash redirects so we can route
+    // prerendered HTML ourselves without changing canonical URLs.
+    index: false,
+    redirect: false,
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('.html')) {
-        // Never cache index.html to ensure users get the latest asset links
+        // Never cache HTML to ensure users get the latest asset links
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      } else if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      } else if (filePath.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|webp|woff2?)$/)) {
         // Cache static assets heavily as they are hashed
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       }
@@ -185,9 +189,19 @@ async function startServer() {
   }));
 
   app.get('*', (req, res) => {
-    // Also prevent caching for the fallback index.html
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.sendFile(path.join(distPath, 'index.html'));
+
+    // Serve the prerendered HTML for this exact route when it exists.
+    const cleanPath = req.path.replace(/\/+$/, '');
+    if (cleanPath) {
+      const candidate = path.join(distPath, cleanPath, 'index.html');
+      if (candidate.startsWith(distPath) && fs.existsSync(candidate)) {
+        return res.sendFile(candidate);
+      }
+    }
+
+    // Fallback: prerendered home (a full document, good for unknown routes).
+    return res.sendFile(path.join(distPath, 'index.html'));
   });
 
   const host = process.env.HOST || '0.0.0.0';
